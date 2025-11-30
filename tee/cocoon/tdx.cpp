@@ -26,7 +26,6 @@
 #include "tdx_attest.h"
 #endif
 
-#include "td/utils/misc.h"
 #include "td/utils/Time.h"
 #include "td/utils/Variant.h"
 #include <cstring>

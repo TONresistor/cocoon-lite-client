@@ -11,7 +11,6 @@
 #include "vm/boc.h"
 #include "vm/cells/CellBuilder.h"
 #include "vm/cells/CellSlice.h"
-#include "cocoon-tl-utils/parsers.hpp"
 #include <memory>
 
 namespace cocoon {

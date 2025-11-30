@@ -8,7 +8,6 @@
 #include "td/utils/OptionParser.h"
 #include "td/utils/as.h"
 #include "tdactor/td/actor/actor.h"
-#include "tdactor/td/actor/actor.h"
 #include <iostream>
 #include <map>
 #include <set>
