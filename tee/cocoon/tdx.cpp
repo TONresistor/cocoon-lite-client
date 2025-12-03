@@ -150,6 +150,23 @@ td::UInt256 AttestationData::image_hash() const {
 
   return td::UInt256{};
 }
+
+std::string AttestationData::short_description() const {
+  if (is_empty()) {
+    return "None";
+  }
+  if (is_tdx()) {
+    // Check if it's fake TDX (rtmr[0] is zero)
+    const auto &tdx_data = as_tdx();
+    bool is_fake = tdx_data.rtmr[0].is_zero();
+    return is_fake ? "fake TDX" : "TDX";
+  }
+  if (is_sgx()) {
+    return "SGX";
+  }
+  return "None";
+}
+
 td::UInt512 UserClaims::to_hash() const {
   auto str = serialize();
   td::UInt512 hash;

@@ -97,17 +97,17 @@ void TcpConnection::socks5_connected(td::BufferedFd<td::SocketFd> fd) {
 
 void TcpConnection::tls_solved_pow(td::SocketPipe pipe) {
   td::connect(
-      [self = actor_id(this)](td::Result<std::pair<td::Pipe, tdx::AttestationData>> R) {
+      [self = actor_id(this)](td::Result<std::pair<td::Pipe, AttestedPeerInfo>> R) {
         if (R.is_ok()) {
           auto res = R.move_as_ok();
-          td::actor::send_closure(self, &TcpConnection::tls_created_pipe, std::move(res.first), std::move(res.second));
+          td::actor::send_closure(self, &TcpConnection::tls_created_pipe, std::move(res.first), std::move(res.second.attestation_data));
         } else {
           td::actor::send_closure(self, &TcpConnection::fail,
                                   R.move_as_error_prefix("tcp: failed to create tls connection: "));
         }
       },
       wrap_tls_client("conn", std::move(pipe), type_->type.get<TcpConnectionTls>().cert_and_key,
-                      type_->type.get<TcpConnectionTls>().policy));
+                      type_->type.get<TcpConnectionTls>().policy, td::IPAddress{}, td::IPAddress{}));
 }
 
 void TcpConnection::tls_created_pipe(td::Pipe pipe, tdx::AttestationData attestation) {
@@ -244,11 +244,11 @@ void TcpConnection::loop() {
     auto &input = *input_ptr;
     bool exit_loop = false;
     if (!received_attestation_) {
-      TRY_RESULT(attestation_opt, cocoon::framed_tl_read<tdx::AttestationData>(input));
+      TRY_RESULT(attestation_opt, cocoon::framed_tl_read<AttestedPeerInfo>(input));
       if (!attestation_opt) {
         exit_loop = true;
       } else {
-        process_attestation(attestation_opt.value());
+        process_attestation(attestation_opt.value().attestation_data);
       }
     }
     while (!exit_loop) {

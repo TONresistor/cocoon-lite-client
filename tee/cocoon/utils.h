@@ -21,6 +21,7 @@ namespace td {
 class SslStream;
 }  // namespace td
 namespace cocoon {
+struct AttestedPeerInfo;
 // Create a server-side SSL stream using provided cert/key and policy verification
 td::Result<td::SslStream> create_server_ssl_stream(tdx::CertAndKey cert_and_key, tdx::PolicyRef policy);
 
@@ -82,18 +83,68 @@ td::actor::StartedTask<td::BufferedFd<td::SocketFd>> socks5(td::SocketFd socket_
                                                             td::string username, td::string password);
 td::actor::StartedTask<td::Unit> proxy(td::Slice name, td::Pipe left, td::Pipe right);
 
-td::actor::Task<std::pair<td::Pipe, tdx::AttestationData>> wrap_tls_client(td::Slice name, td::Pipe pipe,
-                                                                           tdx::CertAndKey cert_and_key,
-                                                                           tdx::PolicyRef policy);
-td::actor::Task<std::pair<td::Pipe, tdx::AttestationData>> wrap_tls_server(td::Slice name, td::Pipe pipe,
-                                                                           tdx::CertAndKey cert_and_key,
-                                                                           tdx::PolicyRef policy);
+td::actor::Task<std::pair<td::Pipe, AttestedPeerInfo>> wrap_tls_client(td::Slice name, td::Pipe pipe,
+                                                                       tdx::CertAndKey cert_and_key,
+                                                                       tdx::PolicyRef policy,
+                                                                       const td::IPAddress &source,
+                                                                       const td::IPAddress &destination);
+td::actor::Task<std::pair<td::Pipe, AttestedPeerInfo>> wrap_tls_server(td::Slice name, td::Pipe pipe,
+                                                                       tdx::CertAndKey cert_and_key,
+                                                                       tdx::PolicyRef policy,
+                                                                       const td::IPAddress &source,
+                                                                       const td::IPAddress &destination);
+
+/**
+ * @brief Attested peer information for serialization
+ * 
+ * Contains comprehensive information about the attested peer including
+ * source/destination addresses, attestation data, and user claims
+ */
+struct AttestedPeerInfo {
+  tdx::AttestationData attestation_data;
+  tdx::UserClaims user_claims;
+  std::string source_ip;       // Source IP address as string
+  int source_port;             // Source port
+  std::string destination_ip;  // Destination IP address as string
+  int destination_port;        // Destination port
+
+  template <class StorerT>
+  void store(StorerT &storer) const {
+    using td::store;
+    store(attestation_data, storer);
+    store(user_claims, storer);
+    store(source_ip, storer);
+    store(source_port, storer);
+    store(destination_ip, storer);
+    store(destination_port, storer);
+  }
+
+  template <class ParserT>
+  void parse(ParserT &parser) {
+    using td::parse;
+    parse(attestation_data, parser);
+    parse(user_claims, parser);
+    parse(source_ip, parser);
+    parse(source_port, parser);
+    parse(destination_ip, parser);
+    parse(destination_port, parser);
+  }
+};
+
+td::StringBuilder &operator<<(td::StringBuilder &sb, const AttestedPeerInfo &info);
+
+/**
+ * @brief Create attested peer info from basic attestation data, user claims, and addresses
+ */
+AttestedPeerInfo make_attested_peer_info(const tdx::AttestationData &attestation, const tdx::UserClaims &user_claims,
+                                         const td::IPAddress &source, const td::IPAddress &destination);
 
 struct ProxyState {
   std::string state_ = "Connecting";
   td::optional<td::IPAddress> source_;
   td::optional<td::IPAddress> destination_;
-  std::string attestation_;  // short image hash or empty
+  std::string attestation_;       // short image hash or empty
+  std::string attestation_type_;  // "TDX", "SGX", "None", or "fake TDX"
   bool finished_ = false;
   td::Status status;
 
@@ -111,7 +162,7 @@ struct ProxyState {
       desc += "?";
     }
     if (!attestation_.empty()) {
-      desc += " [" + attestation_ + "]";
+      desc += " [" + attestation_ + " " + attestation_type_ + "]";
     }
     return desc;
   }
@@ -119,17 +170,19 @@ struct ProxyState {
   void set_attestation(const tdx::AttestationData &info) {
     if (info.is_empty()) {
       attestation_ = "";
+      attestation_type_ = "None";
     } else {
       auto hash = info.image_hash();
       attestation_ = td::hex_encode(hash.as_slice()).substr(0, 8) + "..";
+      attestation_type_ = info.short_description();
     }
   }
 
-  void init_source(const td::SocketFd &socket) {
+  td::Status init_source(const td::SocketFd &socket) {
     td::IPAddress source_addr;
-    if (source_addr.init_peer_address(socket).is_ok()) {
-      source_ = source_addr;
-    }
+    TRY_STATUS(source_addr.init_peer_address(socket));
+    source_ = source_addr;
+    return td::Status::OK();
   }
 
   void update_state(td::Slice new_state) {

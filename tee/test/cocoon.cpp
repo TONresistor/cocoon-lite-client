@@ -50,11 +50,11 @@ void start_ping_connection(td::BufferedFd<td::SocketFd> fd, bool expect_quote_in
       TRY_STATUS(sfd_.flush_read());
 
       if (want_quote_info_) {
-        TRY_RESULT(attestation_opt, cocoon::framed_tl_read<tdx::AttestationData>(sfd_.input_buffer()));
-        if (!attestation_opt) {
+        TRY_RESULT(peer_info_opt, cocoon::framed_tl_read<cocoon::AttestedPeerInfo>(sfd_.input_buffer()));
+        if (!peer_info_opt) {
           return td::Status::OK();
         }
-        LOG(INFO) << "Ping: Received attestation data:\n" << attestation_opt.value();
+        LOG(INFO) << "Ping: Received " << peer_info_opt.value();
         want_quote_info_ = false;
         want_send_hello_ = true;
       }
@@ -101,11 +101,11 @@ void start_echo_connection(td::SocketFd fd, bool expect_quote_info = false) {
       TRY_STATUS(sfd_.flush_read());
 
       if (expect_quote_info_) {
-        TRY_RESULT(attestation_opt, cocoon::framed_tl_read<tdx::AttestationData>(sfd_.input_buffer()));
-        if (!attestation_opt) {
+        TRY_RESULT(peer_info_opt, cocoon::framed_tl_read<cocoon::AttestedPeerInfo>(sfd_.input_buffer()));
+        if (!peer_info_opt) {
           return td::Status::OK();
         }
-        LOG(INFO) << "Echo: Received attestation data";
+        LOG(INFO) << "Echo: Received " << peer_info_opt.value();
         expect_quote_info_ = false;
       }
       cocoon::proxy_sockets(sfd_, sfd_);

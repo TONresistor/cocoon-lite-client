@@ -20,10 +20,13 @@ td::actor::Task<td::Unit> run(td::CSlice host, td::int32 port, bool fake_tdx) {
   co_await ip_address.init_host_port(host, port);
   auto cert = tdx::generate_cert_and_key(nullptr);
   auto socket = co_await td::SocketFd::open(ip_address);
-  auto [pipe, info] = co_await cocoon::wrap_tls_client("Inspect", td::make_socket_pipe(std::move(socket)), cert,
-                                                       tdx::Policy::make(tdx));
+  td::IPAddress source_addr;
+  co_await source_addr.init_socket_address(socket);
+  auto [pipe, peer_info] = co_await cocoon::wrap_tls_client("Inspect", td::make_socket_pipe(std::move(socket)), cert,
+                                                            tdx::Policy::make(tdx), source_addr, ip_address);
   LOG(INFO) << "Connection established";
-  LOG(INFO) << info;
+  LOG(INFO) << peer_info;
+  LOG(INFO) << peer_info.attestation_data;
   co_return td::Unit();
 }
 int main(int argc, char **argv) {

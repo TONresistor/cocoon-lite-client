@@ -22,7 +22,7 @@ struct AcceptAndProxy : td::TaskActor<ProxyState> {
   }
 
   td::actor::Task<Action> task_loop_once() override {
-    state_.init_source(socket_);
+    co_await state_.init_source(socket_);
     state_.destination_ = config_->dst_;
     state_.update_state("Connecting");
 
@@ -35,14 +35,15 @@ struct AcceptAndProxy : td::TaskActor<ProxyState> {
     client_pipe = co_await pow::verify_pow_server(std::move(client_pipe), config_->pow_difficulty);
 
     state_.update_state("TlsHandshake");
-    auto [tls_socket, info] =
-        co_await wrap_tls_server("-Rev-" + desc, std::move(client_pipe), config_->cert_and_key_.load(), config_->policy_);
-    state_.set_attestation(info);
+    auto [tls_socket, peer_info] =
+        co_await wrap_tls_server("-Rev-" + desc, std::move(client_pipe), config_->cert_and_key_.load(),
+                                 config_->policy_, state_.source_.value(), state_.destination_.value());
+    state_.set_attestation(peer_info.attestation_data);
 
     auto dst_pipe = make_socket_pipe(co_await td::SocketFd::open(config_->dst_));
 
     if (config_->serialize_info) {
-      co_await framed_tl_write(dst_pipe.output_buffer(), info);
+      co_await framed_tl_write(dst_pipe.output_buffer(), peer_info);
     }
 
     state_.update_state("Proxying");

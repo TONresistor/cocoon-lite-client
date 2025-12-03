@@ -179,6 +179,12 @@ struct AttestationData {
   td::UInt384 collateral_root_hash() const {
     return collateral_root_hash_;
   }
+  
+  /**
+   * @brief Get a short description of the attestation type
+   * @return String describing the type: "TDX", "fake TDX", "SGX", or "None"
+   */
+  std::string short_description() const;
 
   template <class StorerT>
   void store(StorerT &storer) const {
@@ -236,6 +242,26 @@ struct UserClaims {
    * @return Serialized claims as string
    */
   std::string serialize() const;
+
+  template <class StorerT>
+  void store(StorerT &storer) const {
+    using td::store;
+    auto key_str = public_key.to_secure_string();
+    store(key_str, storer);
+  }
+
+  template <class ParserT>
+  void parse(ParserT &parser) {
+    using td::parse;
+    std::string key_str;
+    parse(key_str, parser);
+    auto r_key = tde2e_core::PublicKey::from_slice(td::Slice(key_str));
+    if (r_key.is_error()) {
+      parser.set_error(PSTRING() << "Failed to parse PublicKey: " << r_key.error());
+      return;
+    }
+    public_key = r_key.move_as_ok();
+  }
 };
 
 /**

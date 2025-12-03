@@ -82,11 +82,11 @@ if [ "$START_SERVER" = true ]; then
     trap "kill $SERVER_PID 2>/dev/null || true" EXIT
     
     # Wait for server to be ready
-    sleep 1
+    sleep 3
 fi
 
 # Request body
-BODY='{"stream":true,"model":"Qwen/Qwen3-0.6B","messages":[{"role":"user","content":"hello"},{"role":"assistant","content":"\nHello! How can I assist you today? 😊"},{"role":"user","content":"what is your name"}],"max_tokens":8000}'
+BODY='{"stream":true,"model":"Qwen/Qwen3-8B","messages":[{"role":"user","content":"hello"},{"role":"assistant","content":"\nHello! How can I assist you today? 😊"},{"role":"user","content":"what is your name"}],"max_tokens":8000}'
 
 echo "Benchmarking $TARGET/v1/chat/completions"
 echo "$CONNECTIONS connections, $REQUESTS requests"

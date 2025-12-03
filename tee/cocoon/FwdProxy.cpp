@@ -234,10 +234,11 @@ class Socks5Init : public td::TaskActor<Answer> {
 
 namespace {
 struct AcceptAndProxy : td::TaskActor<ProxyState> {
-  AcceptAndProxy(td::SocketFd socket, std::shared_ptr<const FwdProxy::Config> config) : socket_(std::move(socket)), config_(std::move(config)) {
+  AcceptAndProxy(td::SocketFd socket, std::shared_ptr<const FwdProxy::Config> config)
+      : socket_(std::move(socket)), config_(std::move(config)) {
   }
   td::actor::Task<Action> task_loop_once() override {
-    state_.init_source(socket_);
+    co_await state_.init_source(socket_);
     state_.update_state("Connecting");
 
     td::SocketPipe left;
@@ -259,7 +260,6 @@ struct AcceptAndProxy : td::TaskActor<ProxyState> {
       right = std::move(ans.dst);
       policy = std::move(ans.policy);
       state_.destination_ = ans.destination;
-
     }
 
     auto desc = state_.short_desc();
@@ -269,11 +269,13 @@ struct AcceptAndProxy : td::TaskActor<ProxyState> {
     right = co_await pow::solve_pow_client(std::move(right), config_->max_pow_difficulty);
 
     state_.update_state("TlsHandshake");
-    auto [tls_pipe, info] = co_await wrap_tls_client("-Fwd-" + desc, std::move(right), config_->cert_and_key_.load(), policy);
-    state_.set_attestation(info);
+    auto [tls_pipe, peer_info] =
+        co_await wrap_tls_client("-Fwd-" + desc, std::move(right), config_->cert_and_key_.load(), policy,
+                                 state_.source_.value(), state_.destination_.value());
+    state_.set_attestation(peer_info.attestation_data);
 
     if (config_->serialize_info) {
-      co_await framed_tl_write(left.output_buffer(), info);
+      co_await framed_tl_write(left.output_buffer(), peer_info);
     }
 
     state_.update_state("Proxying");
@@ -284,7 +286,8 @@ struct AcceptAndProxy : td::TaskActor<ProxyState> {
     state_.finish(std::move(status));
     co_return std::move(state_);
   }
-private:
+
+ private:
   td::SocketFd socket_;
   std::shared_ptr<const FwdProxy::Config> config_;
   ProxyState state_;
