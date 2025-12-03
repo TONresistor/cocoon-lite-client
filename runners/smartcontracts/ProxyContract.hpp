@@ -82,6 +82,14 @@ class ProxyContract : public TonScWrapper {
     return stake_;
   }
 
+  bool is_closing() const {
+    return status_ == 1;
+  }
+
+  bool is_closed() const {
+    return status_ == 2;
+  }
+
  private:
   block::StdAddress owner_address_;
   td::Bits256 public_key_;

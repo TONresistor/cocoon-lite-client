@@ -989,6 +989,9 @@ void ProxyRunner::alarm() {
   if (sc_ && !running_withdraw_ && sc_->ready_for_withdraw() >= min_withdraw_amount()) {
     run_withdraw();
   }
+  if (sc_ && (sc_->is_closing() || sc_->is_closed())) {
+    proxy_enable_disable(r->root_contract_config->params_version() + 1);
+  }
 }
 
 /*
