@@ -1,3 +1,4 @@
+#include "pow.h"
 #include "tdx.h"
 #include "utils.h"
 #include "td/actor/coro.h"
@@ -22,8 +23,10 @@ td::actor::Task<td::Unit> run(td::CSlice host, td::int32 port, bool fake_tdx) {
   auto socket = co_await td::SocketFd::open(ip_address);
   td::IPAddress source_addr;
   co_await source_addr.init_socket_address(socket);
-  auto [pipe, peer_info] = co_await cocoon::wrap_tls_client("Inspect", td::make_socket_pipe(std::move(socket)), cert,
+  auto socket_pipe = co_await cocoon::pow::solve_pow_client(td::make_socket_pipe(std::move(socket)), 30);
+  auto [pipe, peer_info] = co_await cocoon::wrap_tls_client("Inspect", std::move(socket_pipe), cert,
                                                             tdx::Policy::make(tdx), source_addr, ip_address);
+
   LOG(INFO) << "Connection established";
   LOG(INFO) << peer_info;
   LOG(INFO) << peer_info.attestation_data;
