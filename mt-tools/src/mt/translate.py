@@ -368,10 +368,37 @@ def fix_json_closing(json_str: str) -> str:
 # =============================================================================
 
 def _extract_lang_code(target_lang: str) -> str:
-    """Extract language code from target_lang like 'Russian (ru)' -> 'ru'."""
+    """Extract language code from target_lang like 'Russian (ru)' -> 'ru' or 'Chinese' -> 'zh'."""
     import re
+    # First try to extract from parentheses: "Russian (ru)" -> "ru"
     match = re.search(r'\((\w+)\)', target_lang)
-    return match.group(1) if match else target_lang.lower()[:2]
+    if match:
+        return match.group(1)
+    
+    # Try reverse lookup from full name in SEEDX_LANG_MAP
+    target_lower = target_lang.lower().strip()
+    for code, (_, full_name) in SEEDX_LANG_MAP.items():
+        if full_name.lower() == target_lower:
+            return code
+    
+    # Fallback: first 2 characters (may be wrong for some languages)
+    return target_lang.lower()[:2]
+
+
+def _normalize_lang_name(target_lang: str) -> str:
+    """Normalize language to 'FullName (code)' format, e.g. 'ru' -> 'Russian (ru)'."""
+    # If already in full format, return as-is
+    if '(' in target_lang:
+        return target_lang
+    
+    # Extract code and look up full name
+    code = target_lang.lower().strip()
+    if code in SEEDX_LANG_MAP:
+        _, full_name = SEEDX_LANG_MAP[code]
+        return f"{full_name} ({code})"
+    
+    # Unknown language - return as-is
+    return target_lang
 
 
 def _detect_source_lang(text: str) -> str:
@@ -429,7 +456,7 @@ def _build_seedx_prompt(text: str, target_lang: str, config: TranslateConfig) ->
     tag, full_name = SEEDX_LANG_MAP.get(lang_code, (lang_code, target_lang))
     src_lang = _detect_source_lang(text)
 
-    prompt = f"Translate the following sentence into {full_name}:\n{text} <{tag}>"
+    prompt = f"Translate the following sentence into {full_name} without explanations:\n{text} <{tag}>"
     return PromptSpec(prompt=prompt, api="completions", extra={"skip_special_tokens": True})
 
 
@@ -610,7 +637,8 @@ HARMONY_DEVELOPER_PROMPT = """You are a translator. Translate the user's text ac
 
 def _build_harmony_prompt(text: str, target_lang: str, config: TranslateConfig) -> PromptSpec:
     """Harmony format - manually constructed prompt for gpt-oss models."""
-    user_content = f"Translate to {target_lang}:\n\n{text}"
+    full_lang = _normalize_lang_name(target_lang)
+    user_content = f"Translate to {full_lang}:\n\n{text}"
     prompt = (
         "<|start|>system<|message|>You are ChatGPT, a large language model trained by OpenAI.\n"
         "Knowledge cutoff: 2024-06\nReasoning: low\nValid channels: final.<|end|>"

@@ -11,7 +11,11 @@ dependencies = [
     "pandas",
     "rich",
     "duckdb",
+    "bert-score",
 ]
+
+[project.scripts]
+mt = "mt.cli:main"
 
 [build-system]
 requires = ["hatchling"]
