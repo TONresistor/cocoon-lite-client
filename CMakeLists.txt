@@ -354,6 +354,11 @@ add_executable(worker-runner
   runners/helpers/ValidateRequest.cpp
   )
 target_link_libraries(worker-runner PRIVATE cocoon_common )
+add_executable(key-manager-runner 
+  runners/KeyManagerRunner.cpp
+  runners/key-manager/KeyManagerRunner.cpp
+  )
+target_link_libraries(key-manager-runner PRIVATE cocoon_common )
 
 # Sync time utility
 add_executable(sync-time runners/utils/sync_time.cpp )

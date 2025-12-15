@@ -86,12 +86,14 @@ clientRunner.config
 keyStorageRunner.config
   is_test:Bool
   is_testnet:Bool
+  rpc_port:int
   http_port:int
-  connect_to_proxy_via:string
   root_contract_address:string
-  check_proxy_hashes:Bool
-  root_contract_private_key:string
+  machine_specific_private_key:int256
   ton_config_filename:string
+  db_path:string
+  check_hashes:Bool
+  image_hash:int256
   http_access_hash:string = keyStorageRunner.Config;
 
 rootConfig.registeredProxy seqno:int address:string = rootConfig.RegisteredProxy;
@@ -149,6 +151,13 @@ proxyDb.oldClient owner_address:string tokens:long next_client:string = proxyDb.
 proxyDb.oldWorker owner_address:string tokens:long next_worker:string = proxyDb.OldWorker;
 proxyDb.oldInstance contract_address:string closing_state:int close_at:int next_client:string next_worker:string root_contract_state:rootConfig.Config =
   proxyDb.OldInstance;
+
+
+keyManagerDb.configEmpty = keyManagerDb.Config;
+keyManagerDb.configV1 root_contract_version:int = keyManagerDb.Config;
+
+keyManagerDb.key private_key:int256 for_proxies:Bool for_workers:Bool valid_since_config_version:int valid_since_utime:int
+                 valid_until_utime:int = keyManagerDb.Key;
 
 ---functions---
 
@@ -280,6 +289,17 @@ worker.extendedCompareBalanceWithProxy tokens_committed_to_db:long other:bytes =
 worker.proxyHandshakeComplete is_disabled:Bool = worker.HandshakeCompleted;
 
 worker.updatePaymentStatus = worker.PaymentStatus;
+
+
+---types---
+
+keyManager.privateKey valid_until_utime:int private_key:int256 = keyManager.PrivateKey;
+keyManager.privateKeys keys:(vector keyManager.privateKey) = keyManager.PrivateKeys;
+
+---functions---
+
+keyManager.getWorkerPrivateKeys min_config_version:int = keyManager.PrivateKeys;  
+keyManager.getProxyPrivateKeys min_config_version:int = keyManager.PrivateKeys;  
 
 ---types---
 
