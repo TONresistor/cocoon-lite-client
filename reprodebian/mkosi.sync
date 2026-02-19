@@ -1,8 +1,0 @@
-#!/bin/bash
-set -e
-
-echo ===========
-pwd
-echo ===========
-ls -l
-echo ===========

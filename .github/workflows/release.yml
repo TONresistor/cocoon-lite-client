@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download binaries from release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          mkdir -p build/tee
+          # Expect individual binaries uploaded as release assets
+          gh release download "$TAG" -p "client-runner" -D build/ || true
+          gh release download "$TAG" -p "router" -D build/tee/ || true
+          gh release download "$TAG" -p "generate-cocoon-wallet-address" -D build/ || true
+
+          # If all 3 binaries present, create the tar.gz bundle
+          if [ -f build/client-runner ] && [ -f build/tee/router ] && [ -f build/generate-cocoon-wallet-address ]; then
+            mkdir -p release-staging
+            cp build/client-runner release-staging/
+            cp build/tee/router release-staging/
+            cp build/generate-cocoon-wallet-address release-staging/
+            cp spec/mainnet-base-ton-config.json release-staging/
+            cp spec/mainnet-full-ton-config.json release-staging/
+            cp spec/spec-client/client-config.json release-staging/client-config.template.json
+            chmod +x release-staging/client-runner release-staging/router release-staging/generate-cocoon-wallet-address
+            tar czf cocoon-lite-client-linux-x64.tar.gz -C release-staging .
+            gh release upload "$TAG" cocoon-lite-client-linux-x64.tar.gz --clobber
+            echo "✅ Bundle uploaded"
+          else
+            echo "⚠️ Missing binaries — upload client-runner, router, generate-cocoon-wallet-address as assets first"
+            exit 1
+          fi
