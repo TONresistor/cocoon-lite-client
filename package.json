@@ -7,7 +7,13 @@
     "cocoon": "./src/cli.js"
   },
   "scripts": {
-    "cocoon": "node src/cli.js"
+    "cocoon": "node src/cli.js",
+    "build": "npm run build --prefix webui",
+    "dev": "npm run dev --prefix webui",
+    "test": "node --test src/tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",

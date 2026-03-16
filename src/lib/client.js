@@ -21,31 +21,6 @@ function renderTemplate(templatePath, vars) {
 }
 
 /**
- * Merge liteservers from full config into base config.
- * Uses regex-based merge to avoid JSON.parse destroying int64 values
- * (e.g. -9223372036854775808 becomes -9223372036854776000 in JS floats).
- */
-function renderTonConfig(basePath, fullPath) {
-  const base = readFileSync(basePath, 'utf-8');
-  const full = readFileSync(fullPath, 'utf-8');
-
-  // Extract liteservers array from full config as raw text
-  const liteMatch = full.match(/"liteservers"\s*:\s*(\[[\s\S]*?\n  \])/);
-  if (!liteMatch) {
-    // Full config has no liteservers section — just use it as-is
-    return full;
-  }
-
-  // Replace or insert liteservers in base config
-  if (/"liteservers"/.test(base)) {
-    return base.replace(/"liteservers"\s*:\s*\[[\s\S]*?\n  \]/, `"liteservers": ${liteMatch[1]}`);
-  }
-
-  // No liteservers in base — insert before closing brace
-  return base.replace(/\n\}/, `,\n  "liteservers": ${liteMatch[1]}\n}`);
-}
-
-/**
  * Launch router + client-runner from config.
  * @param {object} config - parsed client.conf
  * @param {object} [opts]
@@ -90,12 +65,9 @@ export function launchClient(config, opts = {}) {
     throw new Error(`TON config not found: ${tonConfigPath}`);
   }
 
-  if (existsSync(PATHS.tonConfigBase)) {
-    const tonConfig = renderTonConfig(PATHS.tonConfigBase, tonConfigPath);
-    writeFileSync(resolve(runDir, 'global.config.json'), tonConfig);
-  } else {
-    copyFileSync(tonConfigPath, resolve(runDir, 'global.config.json'));
-  }
+  // Copy full TON config as-is (like the original start.sh).
+  // Do NOT merge with base config — base has empty DHT nodes which causes SIGSEGV.
+  copyFileSync(tonConfigPath, resolve(runDir, 'global.config.json'));
 
   // Cleanup handler
   const cleanup = () => {
@@ -108,7 +80,7 @@ export function launchClient(config, opts = {}) {
   const httpPort = 10000 + instance * 10;
 
   // Start router
-  spawnWithPrefix(
+  const routerProc = spawnWithPrefix(
     PATHS.router,
     ['-S', `8116@${routerPolicy}`, '--serialize-info', `-v${verbosity}`],
     {
@@ -123,7 +95,7 @@ export function launchClient(config, opts = {}) {
   );
 
   // Start client-runner
-  spawnWithPrefix(
+  const clientProc = spawnWithPrefix(
     PATHS.clientRunner,
     ['--config', clientConfigPath, `-v${verbosity}`],
     {
@@ -142,18 +114,22 @@ export function launchClient(config, opts = {}) {
     }
   );
 
-  return { cleanup, runDir, httpPort };
+  // Kill both processes
+  const kill = () => {
+    for (const proc of [routerProc, clientProc]) {
+      try { proc.kill('SIGTERM'); } catch {}
+    }
+    // Force kill after 3s
+    setTimeout(() => {
+      for (const proc of [routerProc, clientProc]) {
+        try { proc.kill('SIGKILL'); } catch {}
+      }
+    }, 3000);
+  };
+
+  return { cleanup, kill, runDir, httpPort, routerProc, clientProc };
 }
 
-/**
- * Poll /jsonstats until proxy is ready.
- * @param {number} port
- * @param {object} [opts]
- * @param {(status: object) => void} [opts.onUpdate]
- * @param {number} [opts.timeoutMs=300000] - 5 min default
- * @param {number} [opts.intervalMs=3000]
- * @returns {Promise<object | null>} stats data or null on timeout
- */
 /**
  * Check if jsonstats data indicates fully ready (proxy connected + staked).
  */

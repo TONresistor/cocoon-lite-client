@@ -4,6 +4,7 @@ import chalk from 'chalk';
 const processes = [];
 let shuttingDown = false;
 let signalHandlersRegistered = false;
+let currentCleanup = null;
 
 // Patterns to detect lifecycle events from binary output
 const LIFECYCLE_PATTERNS = [
@@ -25,6 +26,10 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
   const colorFn = chalk[color] || chalk.white;
   const tag = colorFn.bold(`[${prefix}]`);
 
+  // Ring buffer for last lines before exit (debugging)
+  const lastLines = [];
+  const MAX_LAST_LINES = 10;
+
   const proc = spawn(cmd, args, {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, ...env },
@@ -35,6 +40,10 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
 
     // Strip ANSI codes for pattern matching
     const clean = line.replace(/\x1b\[[0-9;]*m/g, '');
+
+    // Always keep last lines for exit diagnostics
+    lastLines.push(clean.trim());
+    if (lastLines.length > MAX_LAST_LINES) lastLines.shift();
 
     // Check lifecycle patterns
     for (const lp of LIFECYCLE_PATTERNS) {
@@ -53,7 +62,8 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
       }
     }
 
-    // In quiet mode, suppress normal output
+    // In quiet mode, suppress all output — real errors are already caught
+    // by the lifecycle patterns above (fatal/error events always print).
     if (quiet) return;
 
     // Verbose mode: show everything
@@ -77,11 +87,14 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
   }
 
   proc.on('exit', (code, signal) => {
+    const idx = processes.indexOf(proc);
+    if (idx !== -1) processes.splice(idx, 1);
+
     if (!shuttingDown) {
       if (code !== 0 && code !== null) {
         console.error(`${tag} ${chalk.red(`exited with code ${code}`)}`);
       }
-      if (onEvent) onEvent('exit', { code, signal });
+      if (onEvent) onEvent('exit', { code, signal, prefix, lastLines: [...lastLines] });
     }
   });
 
@@ -93,7 +106,10 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
  * Register signal handlers for graceful shutdown
  */
 export function setupSignalHandlers(onCleanup) {
-  // Avoid registering duplicate handlers on repeated calls
+  // Always update the cleanup callback so stop→start cycles clean the new temp dir
+  currentCleanup = onCleanup;
+
+  // Signal handlers only need to be registered once
   if (signalHandlersRegistered) return;
   signalHandlersRegistered = true;
 
@@ -110,7 +126,7 @@ export function setupSignalHandlers(onCleanup) {
       for (const proc of processes) {
         try { proc.kill('SIGKILL'); } catch {}
       }
-      if (onCleanup) onCleanup();
+      if (currentCleanup) currentCleanup();
       process.exit(1);
     }, 5000);
 
@@ -120,7 +136,7 @@ export function setupSignalHandlers(onCleanup) {
         .map(p => new Promise((resolve) => p.on('exit', resolve)))
     ).then(() => {
       clearTimeout(timeout);
-      if (onCleanup) onCleanup();
+      if (currentCleanup) currentCleanup();
       process.exit(0);
     });
   };

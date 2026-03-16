@@ -1,0 +1,11 @@
+node_modules/
+webui/node_modules/
+webui/dist/
+.git/
+.claude/
+analyse/
+specs/
+*.md
+.obsidian/
+.wallet.json
+client.conf

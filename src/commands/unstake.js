@@ -2,10 +2,11 @@ import chalk from 'chalk';
 import { confirm } from '@inquirer/prompts';
 import { Address, fromNano } from '@ton/core';
 import { getHttpPort, readWalletJson } from '../lib/config.js';
-import { createTonClient, withRetry } from '../lib/ton.js';
+import { withRetry } from '../lib/ton.js';
+import { getCachedTonClient } from '../api/ton-cache.js';
 import {
   printBanner, row, success, error, separator, handleClientError,
-  BRAND, DIM, CYAN, GREEN, RED, YELLOW,
+  DIM, CYAN, GREEN, RED, YELLOW,
 } from '../lib/ui.js';
 import { sendFromCocoonWallet, waitForSeqnoChange, SC_RESERVE, formatTon } from '../lib/transactions.js';
 
@@ -65,7 +66,7 @@ async function transferCocoonToOwner() {
     return false;
   }
 
-  const client = createTonClient();
+  const client = getCachedTonClient();
   const cocoonAddr = Address.parse(cocoonAddrStr);
   const ownerAddr = Address.parse(ownerAddrStr);
 

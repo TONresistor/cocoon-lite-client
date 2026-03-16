@@ -2,7 +2,18 @@ import { TonClient } from '@ton/ton';
 import { Address, fromNano } from '@ton/core';
 import { readClientConf } from './config.js';
 
-const TONCENTER_ENDPOINT = 'https://toncenter.com/api/v2/jsonRPC';
+const DEFAULT_TONCENTER_ENDPOINT = 'https://toncenter.com/api/v2/jsonRPC';
+
+/**
+ * Get the Toncenter endpoint from client.conf or fall back to mainnet default.
+ */
+function getEndpoint() {
+  try {
+    const conf = readClientConf();
+    if (conf?.toncenter_endpoint) return conf.toncenter_endpoint;
+  } catch {}
+  return DEFAULT_TONCENTER_ENDPOINT;
+}
 
 /**
  * Get API key from: env var > client.conf > null
@@ -22,7 +33,7 @@ function getApiKey() {
 export function createTonClient() {
   const apiKey = getApiKey();
   return new TonClient({
-    endpoint: TONCENTER_ENDPOINT,
+    endpoint: getEndpoint(),
     ...(apiKey ? { apiKey } : {}),
   });
 }
@@ -35,7 +46,7 @@ export async function withRetry(fn, maxRetries = 5) {
     try {
       return await fn();
     } catch (err) {
-      const is429 = err?.response?.status === 429 || err?.message?.includes('429');
+      const is429 = err?.response?.status === 429 || err?.message?.includes('429 Too Many');
       if (!is429 || i === maxRetries - 1) throw err;
       const delay = (i + 1) * 2000; // 2s, 4s, 6s, 8s, 10s
       await new Promise(r => setTimeout(r, delay));
@@ -46,10 +57,14 @@ export async function withRetry(fn, maxRetries = 5) {
 /**
  * Get balance for a TON address.
  * @param {string} address - raw or friendly TON address
+ * @param {TonClient} [client] - optional TonClient instance; uses cached singleton if omitted
  * @returns {Promise<{ nano: bigint, ton: string }>}
  */
-export async function getBalance(address) {
-  const client = createTonClient();
+export async function getBalance(address, client) {
+  if (!client) {
+    const { getCachedTonClient } = await import('../api/ton-cache.js');
+    client = getCachedTonClient();
+  }
   const addr = Address.parse(address);
   const nano = await withRetry(() => client.getBalance(addr));
   return { nano, ton: fromNano(nano) };

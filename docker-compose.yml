@@ -1,0 +1,10 @@
+services:
+  cocoon:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./build:/app/build
+      - ./client.conf:/app/client.conf:ro
+      - ./.wallet.json:/app/.wallet.json:ro
+    restart: unless-stopped

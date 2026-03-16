@@ -2,7 +2,8 @@ import chalk from 'chalk';
 import { confirm } from '@inquirer/prompts';
 import { Address, toNano, fromNano } from '@ton/core';
 import { readWalletJson } from '../lib/config.js';
-import { createTonClient, withRetry } from '../lib/ton.js';
+import { withRetry } from '../lib/ton.js';
+import { getCachedTonClient } from '../api/ton-cache.js';
 import {
   printBanner, row, success, error, separator,
   DIM, CYAN, GREEN, YELLOW,
@@ -35,7 +36,7 @@ export async function withdrawCommand(amountArg) {
     process.exit(1);
   }
 
-  const client = createTonClient();
+  const client = getCachedTonClient();
   const cocoonAddr = Address.parse(cocoonAddrStr);
   const ownerAddr = Address.parse(ownerAddrStr);
 

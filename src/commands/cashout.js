@@ -4,7 +4,8 @@ import { Address, toNano, fromNano } from '@ton/core';
 import { WalletContractV4 } from '@ton/ton';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { readWalletJson } from '../lib/config.js';
-import { createTonClient, withRetry } from '../lib/ton.js';
+import { withRetry } from '../lib/ton.js';
+import { getCachedTonClient } from '../api/ton-cache.js';
 import {
   printBanner, row, success, error, separator,
   DIM, CYAN, GREEN, YELLOW,
@@ -44,7 +45,7 @@ export async function cashoutCommand(amountArg, destination) {
   }
 
   // 3. Open owner wallet (for balance check)
-  const client = createTonClient();
+  const client = getCachedTonClient();
   const mnemonic = seedPhrase.split(' ');
   const keys = await mnemonicToPrivateKey(mnemonic);
   const ownerWallet = WalletContractV4.create({ workchain: 0, publicKey: keys.publicKey });

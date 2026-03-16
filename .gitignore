@@ -12,8 +12,28 @@ node_modules/
 # IDE
 .idea/
 .vscode/
+.obsidian/
 .DS_Store
 *.swp
 
-# Build artifacts (binaries tracked manually)
+# Build artifacts (download from GitHub Releases)
+build/client-runner
+build/tee/router
+build/generate-cocoon-wallet-address
 compile_commands.json
+
+# WebUI build output
+webui/dist/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Personal / generated
+todo.md
+analyse/
+specs/

@@ -7,6 +7,7 @@ import { modelsCommand } from './commands/models.js';
 import { withdrawCommand } from './commands/withdraw.js';
 import { unstakeCommand } from './commands/unstake.js';
 import { cashoutCommand } from './commands/cashout.js';
+import { uiCommand } from './commands/ui.js';
 
 const program = new Command();
 
@@ -57,5 +58,11 @@ program
   .argument('<amount>', 'Amount in TON or "max" to send all')
   .argument('<address>', 'Destination wallet address')
   .action(cashoutCommand);
+
+program
+  .command('ui')
+  .description('Launch web management UI')
+  .option('-p, --port <number>', 'Port for web UI', '3000')
+  .action((opts) => uiCommand(opts));
 
 program.parse();
