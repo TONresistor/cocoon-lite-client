@@ -39,14 +39,14 @@ export default function FundStep({ data, next, back }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Coins size={20} className="text-ton-blue" />
+            <Coins size={20} className="text-[var(--accent)]" />
             Fund Owner Wallet
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-md border border-ton-blue/30 bg-ton-blue/10 px-4 py-3 space-y-2">
-            <p className="text-sm font-medium text-zinc-100">Send at least 21 TON to your owner wallet</p>
-            <ul className="space-y-1 text-xs text-zinc-400">
+          <div className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent-dim)] px-4 py-3 space-y-2">
+            <p className="text-sm font-medium text-[var(--text-primary)]">Send at least 21 TON to your owner wallet</p>
+            <ul className="space-y-1 text-xs text-[var(--text-secondary)]">
               <li>15 TON — minimum stake deposit</li>
               <li>3 TON — gas fees (registration + staking transactions)</li>
               <li>2 TON — node operating balance</li>
@@ -54,30 +54,30 @@ export default function FundStep({ data, next, back }: Props) {
             </ul>
           </div>
 
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-[var(--text-secondary)]">
             Send TON to the address below. The balance will update automatically.
           </p>
 
-          <div className="flex items-center gap-2 rounded bg-zinc-800 p-3">
-            <code className="flex-1 break-all text-xs text-zinc-200">
+          <div className="flex items-center gap-2 rounded bg-white/[0.06] p-3">
+            <code className="flex-1 break-all text-xs text-[var(--text-primary)]">
               {data.ownerAddress}
             </code>
             <button
               onClick={copyAddress}
-              className="shrink-0 text-zinc-400 hover:text-zinc-100"
+              className="shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zinc-400">Balance:</span>
+            <span className="text-sm text-[var(--text-secondary)]">Balance:</span>
             {balance ? (
               <Badge variant={hasFunds ? 'success' : 'secondary'}>
                 {formatTon(balance.nano)} TON
               </Badge>
             ) : (
-              <span className="text-sm text-zinc-500">Checking...</span>
+              <span className="text-sm text-[var(--text-muted)]">Checking...</span>
             )}
           </div>
 

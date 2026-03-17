@@ -94,13 +94,13 @@ export default function UnstakeFlow() {
   const getStepIcon = (status: StepState['status']) => {
     switch (status) {
       case 'pending':
-        return <Circle size={16} className="text-zinc-600" />;
+        return <Circle size={16} className="text-[var(--text-muted)]" />;
       case 'in-progress':
-        return <Loader2 size={16} className="animate-spin text-ton-blue" />;
+        return <Loader2 size={16} className="animate-spin text-[var(--accent)]" />;
       case 'done':
-        return <CheckCircle size={16} className="text-green-500" />;
+        return <CheckCircle size={16} className="text-[var(--green)]" />;
       case 'error':
-        return <XCircle size={16} className="text-red-500" />;
+        return <XCircle size={16} className="text-[var(--red)]" />;
     }
   };
 
@@ -111,12 +111,12 @@ export default function UnstakeFlow() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Unplug size={18} className="text-ton-blue" />
+            <Unplug size={18} className="text-[var(--accent)]" />
             Reclaim Stake
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-[var(--text-secondary)]">
             Reclaims your deposited stake from the proxy contract back to your owner wallet.
             3 steps: close contract, withdraw to node, transfer to owner. Takes a few minutes.
           </p>
@@ -138,12 +138,12 @@ export default function UnstakeFlow() {
                   className={cn(
                     'text-sm',
                     step.status === 'done'
-                      ? 'text-green-400'
+                      ? 'text-[var(--green)]'
                       : step.status === 'error'
-                        ? 'text-red-400'
+                        ? 'text-[var(--red)]'
                         : step.status === 'in-progress'
-                          ? 'text-zinc-100'
-                          : 'text-zinc-500',
+                          ? 'text-[var(--text-primary)]'
+                          : 'text-[var(--text-muted)]',
                   )}
                 >
                   {step.label}

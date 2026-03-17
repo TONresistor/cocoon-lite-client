@@ -49,7 +49,7 @@ export default function CashoutForm({ ownerBalance }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Send size={18} className="text-ton-blue" />
+            <Send size={18} className="text-[var(--accent)]" />
             Cashout (Owner &#8594; External)
           </CardTitle>
         </CardHeader>
@@ -60,7 +60,7 @@ export default function CashoutForm({ ownerBalance }: Props) {
               {ownerBalance && (
                 <button
                   onClick={handleMax}
-                  className="text-xs text-ton-blue hover:underline"
+                  className="text-xs text-[var(--accent)] hover:underline"
                 >
                   Max: {formatTon(ownerBalance)} TON
                 </button>

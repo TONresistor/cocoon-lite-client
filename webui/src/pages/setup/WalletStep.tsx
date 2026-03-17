@@ -68,40 +68,40 @@ export default function WalletStep({ updateData, next }: Props) {
     return (
       <div className="space-y-4">
         <Card
-          className="cursor-pointer transition-colors hover:border-ton-blue"
+          className="cursor-pointer transition-colors hover:border-[var(--accent)]"
           onClick={handleGenerate}
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <KeyRound size={20} className="text-ton-blue" />
+              <KeyRound size={20} className="text-[var(--accent)]" />
               Generate New Wallet
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-[var(--text-secondary)]">
               Create a new wallet with a fresh seed phrase. You will need to fund it with TON.
             </p>
           </CardContent>
         </Card>
 
         <Card
-          className="cursor-pointer transition-colors hover:border-ton-blue"
+          className="cursor-pointer transition-colors hover:border-[var(--accent)]"
           onClick={() => setMode('import')}
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <Upload size={20} className="text-ton-blue" />
+              <Upload size={20} className="text-[var(--accent)]" />
               Import Existing Wallet
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-[var(--text-secondary)]">
               Paste your existing wallet JSON file contents.
             </p>
           </CardContent>
         </Card>
 
-        {loading && <p className="text-sm text-zinc-400">Generating wallet...</p>}
+        {loading && <p className="text-sm text-[var(--text-secondary)]">Generating wallet...</p>}
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -126,9 +126,9 @@ export default function WalletStep({ updateData, next }: Props) {
               {mnemonic.map((word, i) => (
                 <div
                   key={i}
-                  className="rounded bg-zinc-800 px-2 py-1.5 text-center text-sm"
+                  className="rounded bg-white/[0.06] px-2 py-1.5 text-center text-sm"
                 >
-                  <span className="text-zinc-500">{i + 1}.</span> {word}
+                  <span className="text-[var(--text-muted)]">{i + 1}.</span> {word}
                 </div>
               ))}
             </div>
@@ -143,7 +143,7 @@ export default function WalletStep({ updateData, next }: Props) {
           </CardContent>
         </Card>
 
-        <label className="flex items-center gap-3 text-sm text-zinc-300">
+        <label className="flex items-center gap-3 text-sm text-[var(--text-primary)]">
           <input
             type="checkbox"
             checked={confirmed}

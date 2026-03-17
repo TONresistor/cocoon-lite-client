@@ -40,7 +40,7 @@ export default function ChatInput({ onSend, onStop, isStreaming, disabled }: Pro
   };
 
   return (
-    <div className="border-t border-zinc-800 p-4">
+    <div className="border-t border-[var(--glass-border)] p-4">
       <div className="mx-auto flex max-w-3xl items-end gap-2">
         <textarea
           ref={textareaRef}
@@ -53,7 +53,7 @@ export default function ChatInput({ onSend, onStop, isStreaming, disabled }: Pro
           placeholder={disabled ? 'Select a model first...' : 'Type a message... (Shift+Enter for newline)'}
           disabled={disabled}
           rows={1}
-          className="flex-1 resize-none rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ton-blue disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 resize-none rounded-lg border border-[var(--glass-border)] bg-white/[0.06] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         />
         {isStreaming ? (
           <Button variant="destructive" size="icon" onClick={onStop}>

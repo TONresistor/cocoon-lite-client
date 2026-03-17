@@ -34,7 +34,7 @@ function Dialog({ open, onClose, children }: DialogProps) {
         if (e.target === overlayRef.current) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-lg border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-lg border border-[var(--glass-border)] bg-white/[0.04] p-6 shadow-xl">
         {children}
       </div>
     </div>
@@ -42,11 +42,11 @@ function Dialog({ open, onClose, children }: DialogProps) {
 }
 
 function DialogTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn('text-lg font-semibold text-zinc-100', className)} {...props} />;
+  return <h2 className={cn('text-lg font-semibold text-[var(--text-primary)]', className)} {...props} />;
 }
 
 function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('mt-2 text-sm text-zinc-400', className)} {...props} />;
+  return <p className={cn('mt-2 text-sm text-[var(--text-secondary)]', className)} {...props} />;
 }
 
 function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

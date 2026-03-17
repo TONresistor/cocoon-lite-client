@@ -24,8 +24,8 @@ export default function MessageList({ messages, isStreaming }: Props) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-medium text-zinc-500">Start a conversation</p>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="text-lg font-medium text-[var(--text-muted)]">Start a conversation</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
             Send a message to begin chatting with the AI model.
           </p>
         </div>

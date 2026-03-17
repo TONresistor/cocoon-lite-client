@@ -37,8 +37,8 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
   return (
     <div className={cn('group/msg flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-800">
-          <Bot size={14} className="text-zinc-400" />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/[0.06]">
+          <Bot size={14} className="text-[var(--text-secondary)]" />
         </div>
       )}
       <div className="relative max-w-[80%]">
@@ -46,8 +46,8 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
           className={cn(
             'rounded-lg text-sm',
             isUser
-              ? 'bg-ton-blue text-white px-4 py-2.5'
-              : 'bg-zinc-800 text-zinc-200',
+              ? 'bg-[var(--accent)] text-white px-4 py-2.5'
+              : 'bg-white/[0.06] text-[var(--text-primary)]',
           )}
         >
         {isUser ? (
@@ -56,17 +56,17 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
           <>
             {/* Thinking header */}
             {(thinking || isThinking) && (
-              <div className="border-b border-zinc-700/50">
+              <div className="border-b border-[var(--glass-border)]/50">
                 <button
                   onClick={() => setThinkOpen(!thinkOpen)}
-                  className="flex w-full items-center gap-1.5 px-4 py-2 text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="flex w-full items-center gap-1.5 px-4 py-2 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <Lottie animationData={cocoonAnim} loop={isThinking} className="h-4 w-4" />
                   <span>{isThinking ? 'Thinking...' : 'Thought process'}</span>
                   <ChevronDown size={12} className={cn('ml-auto transition-transform', thinkOpen && 'rotate-180')} />
                 </button>
                 {thinkOpen && (
-                  <div className="max-h-48 overflow-y-auto px-4 pb-2 text-xs text-zinc-500 whitespace-pre-wrap">
+                  <div className="max-h-48 overflow-y-auto px-4 pb-2 text-xs text-[var(--text-muted)] whitespace-pre-wrap">
                     {thinking || message.content.replace(/^<think>/, '')}
                   </div>
                 )}
@@ -87,10 +87,10 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
         </div>
         <button
           onClick={handleCopy}
-          className="absolute -bottom-5 right-1 hidden rounded p-0.5 text-zinc-600 transition-colors hover:text-zinc-300 group-hover/msg:block"
+          className="absolute -bottom-5 right-1 hidden rounded p-0.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] group-hover/msg:block"
           title="Copy message"
         >
-          {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+          {copied ? <Check size={12} className="text-[var(--green)]" /> : <Copy size={12} />}
         </button>
       </div>
       {isUser && (

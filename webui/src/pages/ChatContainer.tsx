@@ -39,9 +39,9 @@ export default function ChatContainer() {
   return (
     <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-3rem)]">
       {/* Main chat area */}
-      <div className="flex flex-1 flex-col rounded-lg border border-zinc-800 bg-zinc-900">
+      <div className="flex flex-1 flex-col rounded-lg border border-[var(--glass-border)] bg-white/[0.04]">
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-2">
+        <div className="flex items-center gap-3 border-b border-[var(--glass-border)] px-4 py-2">
           <Select
             className="max-w-xs"
             value={settings.model}
@@ -77,7 +77,7 @@ export default function ChatContainer() {
           {showSettings && (
             <div className="flex items-center gap-4 text-sm">
               <label
-                className="flex items-center gap-2 text-zinc-300"
+                className="flex items-center gap-2 text-[var(--text-primary)]"
                 title="Skip chain-of-thought reasoning for faster responses"
               >
                 <input
@@ -88,7 +88,7 @@ export default function ChatContainer() {
                 />
                 Disable thinking
               </label>
-              <label className="flex items-center gap-2 text-zinc-300">
+              <label className="flex items-center gap-2 text-[var(--text-primary)]">
                 Temp:
                 <input
                   type="range"
@@ -109,8 +109,8 @@ export default function ChatContainer() {
         {!models?.data?.length ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8">
             <Lottie animationData={cocoonAnim} loop className="h-12 w-12 opacity-40" />
-            <p className="text-sm font-medium text-zinc-300">No models available</p>
-            <p className="max-w-xs text-center text-xs text-zinc-500">
+            <p className="text-sm font-medium text-[var(--text-primary)]">No models available</p>
+            <p className="max-w-xs text-center text-xs text-[var(--text-muted)]">
               Start your node from the sidebar and wait for it to reach the Ready state.
             </p>
           </div>

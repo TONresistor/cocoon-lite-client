@@ -72,7 +72,7 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ArrowDownToLine size={18} className="text-ton-blue" />
+            <ArrowDownToLine size={18} className="text-[var(--accent)]" />
             Withdraw (Node &#8594; Owner)
           </CardTitle>
         </CardHeader>
@@ -82,7 +82,7 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
               <Label>Amount (TON)</Label>
               <button
                 onClick={handleMax}
-                className="text-xs text-ton-blue hover:underline"
+                className="text-xs text-[var(--accent)] hover:underline"
               >
                 Max: {formatTon(available.toString())} TON
               </button>
@@ -93,16 +93,16 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--text-muted)]">
               0.05 TON reserved for smart contract operations.
             </p>
             {amountExceedsBalance && (
-              <p className="text-xs text-red-400">
+              <p className="text-xs text-[var(--red)]">
                 Amount exceeds available balance ({formatTon(available.toString())} TON).
               </p>
             )}
             {amountInvalid && (
-              <p className="text-xs text-red-400">
+              <p className="text-xs text-[var(--red)]">
                 Enter a valid amount.
               </p>
             )}

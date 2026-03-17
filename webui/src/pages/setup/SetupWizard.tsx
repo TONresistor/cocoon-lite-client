@@ -36,7 +36,7 @@ export default function SetupWizard() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-8 text-2xl font-bold text-zinc-100">Setup Wizard</h1>
+      <h1 className="mb-8 text-2xl font-bold text-[var(--text-primary)]">Setup Wizard</h1>
 
       {/* Progress bar */}
       <div className="mb-8 flex items-center gap-2">
@@ -46,10 +46,10 @@ export default function SetupWizard() {
               className={cn(
                 'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors',
                 i < currentStep
-                  ? 'bg-ton-blue text-white'
+                  ? 'bg-[var(--accent)] text-white'
                   : i === currentStep
-                    ? 'bg-ton-blue text-white ring-2 ring-ton-blue/40 ring-offset-2 ring-offset-zinc-950'
-                    : 'bg-zinc-800 text-zinc-500',
+                    ? 'bg-[var(--accent)] text-white ring-2 ring-[var(--accent)]/40 ring-offset-2 ring-offset-[var(--bg)]'
+                    : 'bg-white/[0.06] text-[var(--text-muted)]',
               )}
             >
               {i < currentStep ? '\u2713' : i + 1}
@@ -57,7 +57,7 @@ export default function SetupWizard() {
             <span
               className={cn(
                 'hidden text-xs sm:block',
-                i === currentStep ? 'text-zinc-100' : 'text-zinc-500',
+                i === currentStep ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]',
               )}
             >
               {label}
@@ -66,7 +66,7 @@ export default function SetupWizard() {
               <div
                 className={cn(
                   'h-px w-6 sm:w-10',
-                  i < currentStep ? 'bg-ton-blue' : 'bg-zinc-800',
+                  i < currentStep ? 'bg-[var(--accent)]' : 'bg-white/[0.06]',
                 )}
               />
             )}

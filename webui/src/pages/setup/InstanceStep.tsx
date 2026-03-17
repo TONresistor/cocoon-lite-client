@@ -31,8 +31,8 @@ export default function InstanceStep({ data, updateData, next, back }: Props) {
                 updateData({ instance: val });
               }}
             />
-            <p className="text-xs text-zinc-500">
-              HTTP port: <span className="font-mono text-zinc-300">{port}</span>
+            <p className="text-xs text-[var(--text-muted)]">
+              HTTP port: <span className="font-mono text-[var(--text-primary)]">{port}</span>
             </p>
           </div>
 
@@ -45,7 +45,7 @@ export default function InstanceStep({ data, updateData, next, back }: Props) {
               value={data.apiKey}
               onChange={(e) => updateData({ apiKey: e.target.value })}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--text-muted)]">
               Protects the /v1/ API endpoints.
             </p>
           </div>

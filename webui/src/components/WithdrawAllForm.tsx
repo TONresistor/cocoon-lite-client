@@ -216,13 +216,13 @@ export default function WithdrawAllForm({ info }: Props) {
   const getStepIcon = (status: StepState['status']) => {
     switch (status) {
       case 'pending':
-        return <Circle size={14} className="text-zinc-600" />;
+        return <Circle size={14} className="text-[var(--text-muted)]" />;
       case 'in-progress':
-        return <Loader2 size={14} className="animate-spin text-ton-blue" />;
+        return <Loader2 size={14} className="animate-spin text-[var(--accent)]" />;
       case 'done':
-        return <CheckCircle size={14} className="text-green-500" />;
+        return <CheckCircle size={14} className="text-[var(--green)]" />;
       case 'error':
-        return <XCircle size={14} className="text-red-500" />;
+        return <XCircle size={14} className="text-[var(--red)]" />;
     }
   };
 
@@ -234,42 +234,42 @@ export default function WithdrawAllForm({ info }: Props) {
       <Card>
         <CardContent className="pt-5 space-y-4">
           {/* Funds breakdown */}
-          <div className="rounded-md border border-zinc-800 bg-zinc-950 p-4 space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-3">
+          <div className="rounded-[var(--radius-md)] border border-[var(--glass-border)] bg-white/[0.04] p-4 space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)] mb-3">
               Available funds breakdown
             </p>
 
             {hasStake && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">Stake (proxy refund)</span>
-                <span className="font-mono text-sm text-zinc-200">{fmt(stakeRefund)} TON</span>
+                <span className="text-sm text-[var(--text-secondary)]">Stake (proxy refund)</span>
+                <span className="font-mono text-sm text-[var(--text-primary)]">{fmt(stakeRefund)} TON</span>
               </div>
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-400">Node wallet</span>
-              <span className="font-mono text-sm text-zinc-200">{fmt(nodeBalance)} TON</span>
+              <span className="text-sm text-[var(--text-secondary)]">Node wallet</span>
+              <span className="font-mono text-sm text-[var(--text-primary)]">{fmt(nodeBalance)} TON</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-400">Owner wallet</span>
-              <span className="font-mono text-sm text-zinc-200">{fmt(ownerBalance)} TON</span>
+              <span className="text-sm text-[var(--text-secondary)]">Owner wallet</span>
+              <span className="font-mono text-sm text-[var(--text-primary)]">{fmt(ownerBalance)} TON</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-400">Gas fees (estimated)</span>
-              <span className="font-mono text-sm text-zinc-400">-{fmt(gasFees)} TON</span>
+              <span className="text-sm text-[var(--text-secondary)]">Gas fees (estimated)</span>
+              <span className="font-mono text-sm text-[var(--text-secondary)]">-{fmt(gasFees)} TON</span>
             </div>
 
-            <div className="border-t border-zinc-800 pt-2 mt-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-zinc-300">Estimated total</span>
-              <span className="font-mono text-sm font-medium text-zinc-100">~{fmt(estimatedTotal)} TON</span>
+            <div className="border-t border-[var(--glass-border)] pt-2 mt-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-[var(--text-primary)]">Estimated total</span>
+              <span className="font-mono text-sm font-medium text-[var(--text-primary)]">~{fmt(estimatedTotal)} TON</span>
             </div>
           </div>
 
           {/* External address (optional) */}
           <div className="space-y-2">
-            <Label className="text-zinc-400">External address (optional)</Label>
+            <Label className="text-[var(--text-secondary)]">External address (optional)</Label>
             <Input
               type="text"
               placeholder="EQ..."
@@ -277,7 +277,7 @@ export default function WithdrawAllForm({ info }: Props) {
               onChange={(e) => setDestination(e.target.value)}
               disabled={isProcessing}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--text-muted)]">
               Leave empty to keep funds on owner wallet.
             </p>
           </div>
@@ -300,10 +300,10 @@ export default function WithdrawAllForm({ info }: Props) {
                   {getStepIcon(step.status)}
                   <span className={cn(
                     'text-sm',
-                    step.status === 'done' ? 'text-green-400' :
-                    step.status === 'error' ? 'text-red-400' :
-                    step.status === 'in-progress' ? 'text-zinc-100' :
-                    'text-zinc-500',
+                    step.status === 'done' ? 'text-[var(--green)]' :
+                    step.status === 'error' ? 'text-[var(--red)]' :
+                    step.status === 'in-progress' ? 'text-[var(--text-primary)]' :
+                    'text-[var(--text-muted)]',
                   )}>
                     {step.label}
                   </span>
@@ -315,15 +315,15 @@ export default function WithdrawAllForm({ info }: Props) {
 
               {(phase === 'withdrawing') && (
                 <div className="flex items-center gap-2">
-                  <Loader2 size={14} className="animate-spin text-ton-blue" />
-                  <span className="text-sm text-zinc-100">Withdrawing from node to owner...</span>
+                  <Loader2 size={14} className="animate-spin text-[var(--accent)]" />
+                  <span className="text-sm text-[var(--text-primary)]">Withdrawing from node to owner...</span>
                 </div>
               )}
 
               {(phase === 'cashout') && (
                 <div className="flex items-center gap-2">
-                  <Loader2 size={14} className="animate-spin text-ton-blue" />
-                  <span className="text-sm text-zinc-100">Sending to external wallet...</span>
+                  <Loader2 size={14} className="animate-spin text-[var(--accent)]" />
+                  <span className="text-sm text-[var(--text-primary)]">Sending to external wallet...</span>
                 </div>
               )}
             </div>

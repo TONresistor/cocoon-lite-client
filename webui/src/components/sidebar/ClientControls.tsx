@@ -35,7 +35,7 @@ export default function ClientControls() {
   const isActing = startMutation.isPending || stopMutation.isPending;
 
   return (
-    <div className="border-t border-zinc-800 px-3 py-3">
+    <div className="border-t border-[var(--glass-border)] px-3 py-3">
       {isRunning ? (
         <Button
           variant="destructive"

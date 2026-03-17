@@ -44,25 +44,25 @@ export default function WalletPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-zinc-100">Wallet</h1>
+      <h1 className="text-2xl font-bold text-[var(--text-primary)]">Wallet</h1>
 
       {/* Inline balance line */}
       {isLoading ? (
         <Skeleton className="h-6 w-full" />
       ) : info ? (
-        <div className="flex items-center gap-2 font-mono text-sm text-zinc-400">
-          <span>Owner: <span className="text-zinc-200">{ownerBal}</span></span>
-          <span className="text-zinc-600">&rarr;</span>
-          <span>Node: <span className="text-zinc-200">{nodeBal}</span></span>
-          <span className="text-zinc-600">&rarr;</span>
-          <span>Stake: <span className={hasStake ? 'text-green-400' : 'text-zinc-500'}>{hasStake ? 'active' : '\u2014'}</span></span>
+        <div className="flex items-center gap-2 font-mono text-sm text-[var(--text-secondary)]">
+          <span>Owner: <span className="text-[var(--text-primary)]">{ownerBal}</span></span>
+          <span className="text-[var(--text-muted)]">&rarr;</span>
+          <span>Node: <span className="text-[var(--text-primary)]">{nodeBal}</span></span>
+          <span className="text-[var(--text-muted)]">&rarr;</span>
+          <span>Stake: <span className={hasStake ? 'text-[var(--green)]' : 'text-[var(--text-muted)]'}>{hasStake ? 'active' : '\u2014'}</span></span>
         </div>
       ) : (
-        <p className="text-sm text-zinc-500">Wallet not configured</p>
+        <p className="text-sm text-[var(--text-muted)]">Wallet not configured</p>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg bg-zinc-900 p-1">
+      <div className="flex gap-1 rounded-lg bg-white/[0.04] p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -70,8 +70,8 @@ export default function WalletPage() {
             className={cn(
               'flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors',
               activeTab === tab.key
-                ? 'bg-zinc-800 text-zinc-100'
-                : 'text-zinc-500 hover:text-zinc-300',
+                ? 'bg-white/[0.06] text-[var(--text-primary)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]',
             )}
           >
             {tab.label}

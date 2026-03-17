@@ -34,25 +34,25 @@ export default function ConfigStep({ data, next, back }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileCheck size={20} className="text-ton-blue" />
+            <FileCheck size={20} className="text-[var(--accent)]" />
             Review Configuration
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-            <span className="text-zinc-400">Instance</span>
+          <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+            <span className="text-[var(--text-secondary)]">Instance</span>
             <span className="font-mono">{data.instance}</span>
           </div>
-          <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-            <span className="text-zinc-400">HTTP Port</span>
+          <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+            <span className="text-[var(--text-secondary)]">HTTP Port</span>
             <span className="font-mono">{10000 + data.instance * 10}</span>
           </div>
-          <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-            <span className="text-zinc-400">API Key</span>
+          <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+            <span className="text-[var(--text-secondary)]">API Key</span>
             <span className="font-mono">{data.apiKey ? '***' : 'None'}</span>
           </div>
-          <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-            <span className="text-zinc-400">Owner Address</span>
+          <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+            <span className="text-[var(--text-secondary)]">Owner Address</span>
             <span className="font-mono text-xs">{data.ownerAddress}</span>
           </div>
         </CardContent>

@@ -31,8 +31,8 @@ export default function NavItems({ setupDone, onClose }: Props) {
             cn(
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
               isActive
-                ? 'bg-zinc-800 text-zinc-100'
-                : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100',
+                ? 'bg-white/[0.08] text-[var(--text-primary)]'
+                : 'text-[var(--text-secondary)] hover:bg-white/[0.08] hover:text-[var(--text-primary)]',
             )
           }
         >

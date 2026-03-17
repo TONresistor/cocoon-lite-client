@@ -41,37 +41,37 @@ export default function TransferStep({ data, next, back }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ArrowRightLeft size={20} className="text-ton-blue" />
+            <ArrowRightLeft size={20} className="text-[var(--accent)]" />
             Transfer to COCOON Wallet
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-[var(--text-secondary)]">
             Transfer funds from your owner wallet to the COCOON node wallet to begin operations.
           </p>
 
-          <div className="rounded-md border border-ton-blue/30 bg-ton-blue/10 px-4 py-3 space-y-1">
+          <div className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent-dim)] px-4 py-3 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-sm font-medium text-zinc-100">Amount: maximum available</span>
+              <span className="text-sm font-medium text-[var(--text-primary)]">Amount: maximum available</span>
             </div>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[var(--text-secondary)]">
               All funds (minus 0.5 TON gas reserve) will be transferred to the node wallet for staking. The node needs ~18+ TON to register and deposit the minimum stake.
             </p>
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-              <span className="text-zinc-400">From</span>
+            <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+              <span className="text-[var(--text-secondary)]">From</span>
               <span className="font-mono text-xs">{data.ownerAddress}</span>
             </div>
-            <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">
-              <span className="text-zinc-400">To</span>
+            <div className="flex justify-between rounded bg-white/[0.06] px-4 py-2 text-sm">
+              <span className="text-[var(--text-secondary)]">To</span>
               <span className="font-mono text-xs">{data.nodeAddress}</span>
             </div>
           </div>
 
           {status && (
-            <div className="flex items-center gap-2 text-sm text-zinc-300">
+            <div className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
               {loading && <Loader2 size={14} className="animate-spin" />}
               {status}
             </div>
