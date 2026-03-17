@@ -116,24 +116,6 @@ export default function Dashboard() {
   const isProxyReady = proxyConn?.is_ready === true;
   const isStaked = (proxyInfo?.tokens_payed ?? 0) > 0;
 
-  // Human-readable status
-  const statusLabel = !isRunning
-    ? 'Stopped'
-    : isFullyReady
-      ? 'Ready'
-      : phaseIndex >= 3
-        ? 'Proxy Connected'
-        : phaseIndex >= 2
-          ? 'Waiting for Proxy...'
-          : phaseIndex >= 1
-            ? 'TON Synced'
-            : 'Starting...';
-
-  const statusVariant: 'success' | 'default' | 'secondary' = isFullyReady
-    ? 'success'
-    : isRunning
-      ? 'default'
-      : 'secondary';
 
   const [showEventLog, setShowEventLog] = useState(false);
 
@@ -185,7 +167,6 @@ export default function Dashboard() {
                 {LIFECYCLE_STEPS.map((step, i) => {
                   const isDone = i < displayPhase;
                   const isCurrent = i === displayPhase;
-                  const isPending = i > displayPhase;
                   return (
                     <div key={step.key} className="flex items-start gap-2.5 py-1">
                       <div className="mt-0.5 shrink-0">
