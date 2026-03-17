@@ -30,19 +30,19 @@ function formatTime(ts: number): string {
 }
 
 const ICON_MAP: Record<Category, { icon: typeof CheckCircle2; className: string }> = {
-  milestone: { icon: CheckCircle2, className: 'text-green-500' },
-  lifecycle: { icon: Circle, className: 'text-blue-400' },
-  warning: { icon: AlertTriangle, className: 'text-amber-400' },
-  error: { icon: XCircle, className: 'text-red-400' },
-  debug: { icon: Terminal, className: 'text-zinc-600' },
+  milestone: { icon: CheckCircle2, className: 'text-[var(--green)]' },
+  lifecycle: { icon: Circle, className: 'text-[var(--accent)]' },
+  warning: { icon: AlertTriangle, className: 'text-[var(--amber)]' },
+  error: { icon: XCircle, className: 'text-[var(--red)]' },
+  debug: { icon: Terminal, className: 'text-[var(--text-muted)]' },
 };
 
 const MSG_CLASS: Record<Category, string> = {
-  milestone: 'text-zinc-200',
-  lifecycle: 'text-zinc-200',
-  warning: 'text-amber-400',
-  error: 'text-red-400',
-  debug: 'text-zinc-500',
+  milestone: 'text-[var(--text-primary)]',
+  lifecycle: 'text-[var(--text-primary)]',
+  warning: 'text-[var(--amber)]',
+  error: 'text-[var(--red)]',
+  debug: 'text-[var(--text-muted)]',
 };
 
 interface DedupedEvent {
@@ -98,41 +98,41 @@ export default function EventLog({ events }: EventLogProps) {
   if (events.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <div className="glass-card p-5">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           Event Log
         </span>
         <button
           type="button"
           onClick={() => setShowDebug((v) => !v)}
-          className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
         >
           Debug
           <span
             className={`inline-block h-2.5 w-2.5 rounded-full border transition-colors ${
               showDebug
-                ? 'border-blue-500 bg-blue-500'
-                : 'border-zinc-600 bg-transparent'
+                ? 'border-[var(--accent)] bg-[var(--accent)]'
+                : 'border-[var(--text-muted)] bg-transparent'
             }`}
           />
         </button>
       </div>
 
-      <div ref={scrollRef} className="max-h-64 overflow-y-auto space-y-0.5">
+      <div ref={scrollRef} className="max-h-64 overflow-y-auto">
         {rows.map((row, i) => {
           const iconDef = ICON_MAP[row.category];
           const Icon = iconDef.icon;
           return (
-            <div key={i} className="flex items-center gap-2 py-px">
+            <div key={i} className={`flex items-center gap-2 py-1.5 px-0.5 ${i < rows.length - 1 ? 'border-b border-[var(--separator)]' : ''}`}>
               <Icon size={13} className={`shrink-0 ${iconDef.className}`} />
-              <span className="shrink-0 font-mono text-xs text-zinc-500">
+              <span className="shrink-0 font-mono text-xs tabular-nums tracking-tight text-[var(--text-muted)]">
                 {formatTime(row.timestamp)}
               </span>
               <span className={`text-sm truncate ${MSG_CLASS[row.category]}`}>
                 {row.message}
                 {row.count > 1 && (
-                  <span className="ml-1.5 text-[10px] text-zinc-500">(x{row.count})</span>
+                  <span className="ml-1.5 text-[10px] text-[var(--text-muted)]">(x{row.count})</span>
                 )}
               </span>
             </div>

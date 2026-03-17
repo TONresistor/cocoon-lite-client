@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { clientApi, proxyApi, walletApi, type JsonStats } from '../lib/api';
 import { formatTon, formatUptime } from '../lib/format';
 import { QK } from '../lib/queryKeys';
-import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { useSSEEvents } from '../hooks/useSSEContext';
 import { usePollingInterval } from '../hooks/usePollingInterval';
@@ -126,42 +125,51 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-zinc-100">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h1>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Status — Timeline */}
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+        <div className="glass-card p-5">
           {clientLoading ? (
             <Skeleton className="h-14 w-full" />
           ) : !isRunning ? (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Status</span>
-                <Badge variant="secondary" className="text-[10px] px-2 py-0">Stopped</Badge>
+                <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Node</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[11px] font-medium text-[var(--text-secondary)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--text-muted)]" />
+                  Stopped
+                </span>
               </div>
-              <p className="mt-2.5 text-xs text-zinc-500">Start your node from the sidebar.</p>
+              <p className="mt-2.5 text-[13px] text-[var(--text-secondary)]">Start your node from the sidebar.</p>
             </>
           ) : isFullyReady ? (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Status</span>
-                <Badge variant="success" className="text-[10px] px-2 py-0">Ready</Badge>
+                <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Node</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] shadow-[var(--shadow-glow-green)]" />
+                  Running
+                </span>
               </div>
-              <p className="mt-2 text-xs text-zinc-400">Your node is running and earning.</p>
-              <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
+              <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Your node is running and earning.</p>
+              <div className="mt-2 flex items-center gap-3 text-[13px] text-[var(--text-secondary)]">
                 {clientStatus?.uptime != null && clientStatus.uptime > 0 && (
-                  <span>{formatUptime(clientStatus.uptime)}</span>
+                  <span className="tabular-nums tracking-tight">{formatUptime(clientStatus.uptime)}</span>
                 )}
                 {clientStatus?.httpPort && (
-                  <span className="font-mono">:{clientStatus.httpPort}</span>
+                  <span className="font-mono tabular-nums tracking-tight">:{clientStatus.httpPort}</span>
                 )}
               </div>
             </>
           ) : (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Status</span>
-                <Badge variant="default" className="text-[10px] px-2 py-0">Starting...</Badge>
+                <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Node</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[var(--shadow-glow-accent)]" />
+                  Starting
+                </span>
               </div>
               <div className="mt-3 space-y-0">
                 {LIFECYCLE_STEPS.map((step, i) => {
@@ -171,22 +179,22 @@ export default function Dashboard() {
                     <div key={step.key} className="flex items-start gap-2.5 py-1">
                       <div className="mt-0.5 shrink-0">
                         {isDone ? (
-                          <CheckCircle2 size={14} className="text-green-500" />
+                          <CheckCircle2 size={14} className="text-[var(--green)]" />
                         ) : isCurrent ? (
-                          <Loader2 size={14} className="animate-spin text-ton-blue" />
+                          <Loader2 size={14} className="animate-spin text-[var(--accent)]" />
                         ) : (
-                          <Circle size={14} className="text-zinc-700" />
+                          <Circle size={14} className="text-[var(--text-muted)]" />
                         )}
                       </div>
                       <div className="min-w-0">
                         <span className={cn(
                           'text-xs font-medium',
-                          isDone ? 'text-zinc-400' : isCurrent ? 'text-zinc-100' : 'text-zinc-600',
+                          isDone ? 'text-[var(--text-secondary)]' : isCurrent ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]',
                         )}>
                           {step.label}
                         </span>
                         {isCurrent && (
-                          <p className="text-[11px] text-zinc-500">{step.desc}</p>
+                          <p className="text-[13px] text-[var(--text-secondary)]">{step.desc}</p>
                         )}
                       </div>
                     </div>
@@ -197,112 +205,122 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Balances */}
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+        {/* Balance */}
+        <div className="glass-card p-5">
           {walletLoading ? (
             <Skeleton className="h-14 w-full" />
           ) : walletInfo ? (
             <>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Balances</span>
+              <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Balance</span>
               <div className="mt-2.5 space-y-1">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-zinc-400">Owner</span>
-                    <span className="ml-1.5 text-[10px] text-zinc-500">reserve</span>
+                    <span className="text-xs text-[var(--text-secondary)]">Owner</span>
+                    <span className="ml-1.5 text-[10px] text-[var(--text-muted)]">reserve</span>
                   </div>
-                  <span className="font-mono text-sm text-zinc-200">
-                    {walletInfo.owner.balance ? formatTon(walletInfo.owner.balance.nano) : '—'}
+                  <span className="font-mono text-sm tabular-nums tracking-tight text-[var(--text-primary)]">
+                    {walletInfo.owner.balance ? formatTon(walletInfo.owner.balance.nano) : '\u2014'}
                   </span>
                 </div>
-                <div className="flex justify-center text-[10px] text-zinc-700">&#8595;</div>
+                <div className="flex justify-center text-[10px] text-[var(--text-muted)]">&#8595;</div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-zinc-400">Node</span>
-                    <span className="ml-1.5 text-[10px] text-zinc-500">operating</span>
+                    <span className="text-xs text-[var(--text-secondary)]">Node</span>
+                    <span className="ml-1.5 text-[10px] text-[var(--text-muted)]">operating</span>
                   </div>
-                  <span className="font-mono text-sm text-zinc-200">
-                    {walletInfo.cocoon.balance ? formatTon(walletInfo.cocoon.balance.nano) : '—'}
+                  <span className="font-mono text-sm tabular-nums tracking-tight text-[var(--text-primary)]">
+                    {walletInfo.cocoon.balance ? formatTon(walletInfo.cocoon.balance.nano) : '\u2014'}
                   </span>
                 </div>
-                <div className="flex justify-center text-[10px] text-zinc-700">&#8595;</div>
+                <div className="flex justify-center text-[10px] text-[var(--text-muted)]">&#8595;</div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-zinc-400">Stake</span>
-                    <span className="ml-1.5 text-[10px] text-zinc-500">proxy deposit</span>
+                    <span className="text-xs text-[var(--text-secondary)]">Stake</span>
+                    <span className="ml-1.5 text-[10px] text-[var(--text-muted)]">proxy deposit</span>
                   </div>
-                  <span className={`font-mono text-sm ${isStaked ? 'text-green-400' : 'text-zinc-600'}`}>
-                    {isStaked ? `${tokensToTon(proxyInfo!.tokens_payed)} TON` : '—'}
+                  <span className={cn('font-mono text-sm tabular-nums tracking-tight', isStaked ? 'text-[var(--green)]' : 'text-[var(--text-muted)]')}>
+                    {isStaked ? `${tokensToTon(proxyInfo!.tokens_payed)} TON` : '\u2014'}
                   </span>
                 </div>
               </div>
               {isRunning && walletInfo.cocoon.balance &&
                 BigInt(walletInfo.cocoon.balance.nano) < 2_000_000_000n && (
-                <div className="mt-2 flex items-center gap-1.5 rounded bg-amber-950/40 px-2 py-1.5 text-[11px] text-amber-300">
-                  <AlertTriangle size={12} className="shrink-0 text-amber-400" />
+                <div className="mt-2 flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-[var(--amber-dim)] px-2 py-1.5 text-[11px] text-[var(--amber)]">
+                  <AlertTriangle size={12} className="shrink-0 text-[var(--amber)]" />
                   Node balance low — top up to avoid interruptions
                 </div>
               )}
             </>
           ) : (
             <>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Balances</span>
-              <p className="mt-2.5 text-xs text-zinc-600">No wallet</p>
+              <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Balance</span>
+              <p className="mt-2.5 text-xs text-[var(--text-muted)]">No wallet</p>
             </>
           )}
         </div>
 
         {/* Proxy */}
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+        <div className="glass-card p-5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Proxy</span>
+            <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Proxy</span>
             {isRunning && stats && (
-              <Badge variant={isProxyReady ? 'success' : 'secondary'} className="text-[10px] px-2 py-0">
-                {isProxyReady ? 'Connected' : proxyConn ? 'Connecting' : 'Waiting'}
-              </Badge>
+              isProxyReady ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] shadow-[var(--shadow-glow-green)]" />
+                  Connected
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[var(--shadow-glow-accent)]" />
+                  {proxyConn ? 'Connecting' : 'Waiting'}
+                </span>
+              )
             )}
           </div>
           {!isRunning ? (
-            <p className="mt-2.5 text-xs text-zinc-500">Offline</p>
+            <p className="mt-2.5 text-[13px] text-[var(--text-muted)]">Offline</p>
           ) : !stats ? (
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-zinc-400">
+            <div className="mt-2.5 flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
               <Loader2 size={10} className="animate-spin" />
               Waiting...
             </div>
           ) : (
             <div className="mt-2.5 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-zinc-400">Status</span>
-                <span className={cn('text-xs font-medium', isStaked ? 'text-green-400' : 'text-zinc-400')}>
-                  {isStaked ? 'Active' : 'Pending'}
-                </span>
+                <span className="text-xs text-[var(--text-secondary)]">Status</span>
+                {isStaked ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2 py-0.5 text-[11px] font-medium text-[var(--green)]">Active</span>
+                ) : (
+                  <span className="text-xs font-medium text-[var(--text-secondary)]">Pending</span>
+                )}
               </div>
               {proxyInfo && (proxyInfo.tokens_payed ?? 0) > 0 && (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-400">Deposited</span>
-                    <span className="font-mono text-xs text-zinc-300">
+                    <span className="text-xs text-[var(--text-secondary)]">Deposited</span>
+                    <span className="font-mono text-xs tabular-nums tracking-tight text-[var(--text-primary)]">
                       {tokensToTon(proxyInfo.tokens_payed)} TON
-                      <span className="ml-1.5 text-zinc-500">{proxyInfo.tokens_payed.toLocaleString()} tok</span>
+                      <span className="ml-1.5 text-[var(--text-muted)]">{proxyInfo.tokens_payed.toLocaleString()} tok</span>
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-400">Consumed</span>
-                    <span className="font-mono text-xs text-zinc-300">
+                    <span className="text-xs text-[var(--text-secondary)]">Consumed</span>
+                    <span className="font-mono text-xs tabular-nums tracking-tight text-[var(--text-primary)]">
                       {tokensToTon(proxyInfo.tokens_used_proxy_max ?? 0)} TON
-                      <span className="ml-1.5 text-zinc-500">{(proxyInfo.tokens_used_proxy_max ?? 0).toLocaleString()} tok</span>
+                      <span className="ml-1.5 text-[var(--text-muted)]">{(proxyInfo.tokens_used_proxy_max ?? 0).toLocaleString()} tok</span>
                     </span>
                   </div>
                   {proxyInfo.tokens_payed > 0 && (() => {
                     const remaining = Math.min(100, Math.max(0, ((proxyInfo.tokens_payed - (proxyInfo.tokens_used_proxy_max ?? 0)) / proxyInfo.tokens_payed) * 100));
                     return (
                       <div>
-                        <div className="mb-1 flex items-center justify-between text-[10px] text-zinc-500">
+                        <div className="mb-1 flex items-center justify-between text-[10px] text-[var(--text-muted)]">
                           <span>Remaining</span>
-                          <span className="font-mono">{remaining.toFixed(1)}%</span>
+                          <span className="font-mono tabular-nums tracking-tight">{remaining.toFixed(1)}%</span>
                         </div>
-                        <div className="h-1.5 w-full rounded-full bg-zinc-800">
+                        <div className="h-1 w-full rounded-full bg-white/[0.06]">
                           <div
-                            className="h-full rounded-full bg-ton-blue"
+                            className="h-full rounded-full bg-[var(--accent)]"
                             style={{ width: `${remaining}%` }}
                           />
                         </div>
@@ -312,31 +330,31 @@ export default function Dashboard() {
                 </>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-zinc-400">Network</span>
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-[var(--text-secondary)]">Network</span>
+                <span className="text-xs text-[var(--text-secondary)]">
                   {stats.root_contract_config?.registered_proxies?.length ?? 0} proxies
                 </span>
               </div>
               {proxyConn?.address && (
-                <p className="truncate font-mono text-[10px] text-zinc-600">{proxyConn.address}</p>
+                <p className="truncate font-mono text-[11px] text-[var(--text-muted)]">{proxyConn.address}</p>
               )}
             </div>
           )}
         </div>
 
         {/* Models */}
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 md:col-span-2 lg:col-span-3">
-          <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">Models</span>
+        <div className="glass-card p-5 md:col-span-2 lg:col-span-3">
+          <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Models</span>
           {models?.data?.length ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {models.data.map((m) => (
-                <span key={m.id} className="rounded-md bg-zinc-800 px-2 py-0.5 font-mono text-[11px] text-zinc-300">
+                <span key={m.id} className="rounded-[var(--radius-sm)] bg-white/[0.06] px-2 py-0.5 font-mono text-[13px] text-[var(--text-primary)]">
                   {m.id}
                 </span>
               ))}
             </div>
           ) : (
-            <p className="mt-2 text-xs text-zinc-600">
+            <p className="mt-2 text-xs text-[var(--text-muted)]">
               {isRunning
                 ? isProxyReady
                   ? 'No models yet'
@@ -353,7 +371,7 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => setShowEventLog(v => !v)}
-            className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
           >
             <ChevronDown size={12} className={cn('transition-transform', showEventLog && 'rotate-180')} />
             Event Log ({visibleEventCount})

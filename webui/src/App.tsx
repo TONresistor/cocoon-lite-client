@@ -29,7 +29,7 @@ function AppRoutes() {
   });
 
   if (isLoading) return (
-    <div className="flex h-screen items-center justify-center bg-zinc-950">
+    <div className="flex h-screen items-center justify-center bg-[var(--bg)]">
       <Lottie animationData={cocoonAnim} loop className="h-16 w-16" />
     </div>
   );

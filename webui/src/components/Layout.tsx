@@ -76,21 +76,21 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
   const isActing = startMutation.isPending || stopMutation.isPending;
 
   return (
-    <div className="flex h-full w-64 flex-col border-r border-zinc-800 bg-zinc-950">
-      <div className="border-b border-zinc-800 px-6 py-5">
+    <div className="flex h-full w-64 flex-col border-r border-[var(--glass-border)] bg-[var(--bg)]/95 backdrop-blur-xl">
+      <div className="border-b border-[var(--glass-border)] px-6 py-5">
         <div className="flex items-center gap-2">
           <Lottie animationData={cocoonAnim} loop className="h-9 w-9" />
-          <span className="text-lg font-bold text-zinc-100">COCOON</span>
+          <span className="text-lg font-bold text-[var(--text-primary)]">COCOON</span>
           {onClose && (
-            <button onClick={onClose} className="ml-auto text-zinc-400 hover:text-zinc-100 lg:hidden">
+            <button onClick={onClose} className="ml-auto text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:hidden">
               <X size={20} />
             </button>
           )}
         </div>
         {!sseConnected && (
           <div className="mt-1.5 flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-            <span className="text-xs text-amber-500">Live updates paused</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--amber)]" />
+            <span className="text-xs text-[var(--amber)]">Live updates paused</span>
           </div>
         )}
       </div>
@@ -102,10 +102,10 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
             onClick={onClose}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-zinc-800 text-zinc-100'
-                  : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100',
+                  ? 'bg-white/[0.08] text-[var(--text-primary)]'
+                  : 'text-[var(--text-secondary)] hover:bg-white/[0.05] hover:text-[var(--text-primary)]',
               )
             }
           >
@@ -115,10 +115,10 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
         ))}
       </nav>
       {isOnChat && setupDone && (
-        <div className="flex flex-col border-t border-zinc-800 px-3 py-2 min-h-0 flex-1">
+        <div className="flex flex-col border-t border-[var(--glass-border)] px-3 py-2 min-h-0 flex-1">
           <button
             onClick={() => { createConversation(); onClose?.(); }}
-            className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+            className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-xs text-[var(--text-secondary)] hover:bg-white/[0.05] hover:text-[var(--text-primary)] transition-colors"
           >
             <Plus size={12} />
             New Chat
@@ -130,15 +130,15 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
                 className={cn(
                   'group flex items-center gap-2 rounded-md px-2 py-1.5 text-xs cursor-pointer transition-colors',
                   conv.id === activeConversationId
-                    ? 'bg-zinc-800 text-zinc-100'
-                    : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300',
+                    ? 'bg-white/[0.08] text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:bg-white/[0.04] hover:text-[var(--text-secondary)]',
                 )}
                 onClick={() => { setActiveConversation(conv.id); onClose?.(); }}
               >
                 <span className="flex-1 truncate">{conv.title}</span>
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteConversation(conv.id); }}
-                  className="hidden shrink-0 text-zinc-600 hover:text-red-400 group-hover:block"
+                  className="hidden shrink-0 text-[var(--text-muted)] hover:text-[var(--red)] group-hover:block"
                 >
                   <Trash2 size={10} />
                 </button>
@@ -148,14 +148,14 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
         </div>
       )}
       {setupDone && (
-        <div className="border-t border-zinc-800 px-3 py-3">
+        <div className="border-t border-[var(--glass-border)] px-3 py-3">
           {actionError && (
-            <p className="mb-2 rounded bg-red-950/50 px-2 py-1.5 text-[11px] text-red-400">{actionError}</p>
+            <p className="mb-2 rounded-lg bg-[var(--red-dim)] px-2 py-1.5 text-[11px] text-[var(--red)]">{actionError}</p>
           )}
           {isRunning ? (
             <Button
               variant="destructive"
-              className="w-full"
+              className="w-full rounded-xl"
               onClick={() => stopMutation.mutate()}
               disabled={isActing}
             >
@@ -164,7 +164,7 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
             </Button>
           ) : (
             <Button
-              className="w-full"
+              className="w-full rounded-xl"
               onClick={() => startMutation.mutate()}
               disabled={isActing}
             >
@@ -182,7 +182,7 @@ export default function Layout({ children, setupDone = false }: { children: Reac
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-950">
+    <div className="flex h-screen overflow-hidden bg-[var(--bg)]">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar setupDone={setupDone} />
@@ -203,15 +203,15 @@ export default function Layout({ children, setupDone = false }: { children: Reac
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center border-b border-zinc-800 px-4 lg:hidden">
+        <header className="flex h-14 items-center border-b border-[var(--glass-border)] px-4 lg:hidden">
           <button
             onClick={() => setMobileOpen(true)}
-            className="text-zinc-400 hover:text-zinc-100"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             <Menu size={24} />
           </button>
           <Lottie animationData={cocoonAnim} loop className="ml-2 h-7 w-7" />
-          <span className="font-bold text-zinc-100">COCOON</span>
+          <span className="font-bold text-[var(--text-primary)]">COCOON</span>
         </header>
         <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>

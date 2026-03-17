@@ -8,22 +8,22 @@ import { ArrowDownLeft, ArrowUpRight, Circle } from 'lucide-react';
 // --- Label + color mapping ---
 
 const ACTION_META: Record<string, { label: string; color: string; direction: 'in' | 'out' | 'neutral' }> = {
-  cocoon_client_top_up:            { label: 'Top Up',           color: 'text-blue-400',   direction: 'out' },
-  cocoon_client_increase_stake:    { label: 'Stake',            color: 'text-blue-400',   direction: 'out' },
-  cocoon_client_withdraw:          { label: 'Withdraw',         color: 'text-amber-400',  direction: 'in' },
-  cocoon_worker_payout:            { label: 'Worker Payout',    color: 'text-green-400',  direction: 'in' },
-  cocoon_proxy_payout:             { label: 'Proxy Payout',     color: 'text-green-400',  direction: 'in' },
-  cocoon_proxy_charge:             { label: 'Proxy Charge',     color: 'text-amber-400',  direction: 'out' },
-  cocoon_register_proxy:           { label: 'Register Proxy',   color: 'text-zinc-400',   direction: 'neutral' },
-  cocoon_unregister_proxy:         { label: 'Unregister Proxy', color: 'text-zinc-400',   direction: 'neutral' },
-  cocoon_client_register:          { label: 'Register',         color: 'text-zinc-400',   direction: 'neutral' },
-  cocoon_client_request_refund:    { label: 'Request Refund',   color: 'text-amber-400',  direction: 'in' },
-  cocoon_grant_refund:             { label: 'Grant Refund',     color: 'text-green-400',  direction: 'in' },
-  cocoon_client_change_secret_hash:{ label: 'Change Secret',    color: 'text-zinc-400',   direction: 'neutral' },
+  cocoon_client_top_up:            { label: 'Top Up',           color: 'text-[var(--accent)]',         direction: 'out' },
+  cocoon_client_increase_stake:    { label: 'Stake',            color: 'text-[var(--accent)]',         direction: 'out' },
+  cocoon_client_withdraw:          { label: 'Withdraw',         color: 'text-[var(--amber)]',          direction: 'in' },
+  cocoon_worker_payout:            { label: 'Worker Payout',    color: 'text-[var(--green)]',          direction: 'in' },
+  cocoon_proxy_payout:             { label: 'Proxy Payout',     color: 'text-[var(--green)]',          direction: 'in' },
+  cocoon_proxy_charge:             { label: 'Proxy Charge',     color: 'text-[var(--amber)]',          direction: 'out' },
+  cocoon_register_proxy:           { label: 'Register Proxy',   color: 'text-[var(--text-secondary)]', direction: 'neutral' },
+  cocoon_unregister_proxy:         { label: 'Unregister Proxy', color: 'text-[var(--text-secondary)]', direction: 'neutral' },
+  cocoon_client_register:          { label: 'Register',         color: 'text-[var(--text-secondary)]', direction: 'neutral' },
+  cocoon_client_request_refund:    { label: 'Request Refund',   color: 'text-[var(--amber)]',          direction: 'in' },
+  cocoon_grant_refund:             { label: 'Grant Refund',     color: 'text-[var(--green)]',          direction: 'in' },
+  cocoon_client_change_secret_hash:{ label: 'Change Secret',    color: 'text-[var(--text-secondary)]', direction: 'neutral' },
 };
 
 function getMeta(type: string) {
-  return ACTION_META[type] ?? { label: type.replace(/^cocoon_/, '').replace(/_/g, ' '), color: 'text-zinc-500', direction: 'neutral' as const };
+  return ACTION_META[type] ?? { label: type.replace(/^cocoon_/, '').replace(/_/g, ' '), color: 'text-[var(--text-muted)]', direction: 'neutral' as const };
 }
 
 // --- Relative time ---
@@ -39,9 +39,21 @@ function timeAgo(ts: number): string {
 // --- Direction icon ---
 
 function DirectionIcon({ direction }: { direction: 'in' | 'out' | 'neutral' }) {
-  if (direction === 'in') return <ArrowDownLeft size={10} className="text-green-500" />;
-  if (direction === 'out') return <ArrowUpRight size={10} className="text-amber-500" />;
-  return <Circle size={6} className="text-zinc-600" />;
+  if (direction === 'in') return (
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--green-dim)]">
+      <ArrowDownLeft size={10} className="text-[var(--green)]" />
+    </span>
+  );
+  if (direction === 'out') return (
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent-dim)]">
+      <ArrowUpRight size={10} className="text-[var(--accent)]" />
+    </span>
+  );
+  return (
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/[0.06]">
+      <Circle size={6} className="text-[var(--text-muted)]" />
+    </span>
+  );
 }
 
 // --- Component ---
@@ -63,23 +75,23 @@ export default function TransactionsCard() {
   const earnedTon = earningsData?.totalNano ? formatTon(earningsData.totalNano) : '0';
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <div className="glass-card p-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-100">
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">
           On-Chain Activity
         </span>
-        <span className="font-mono text-xs text-green-400">
+        <span className="font-mono text-xs tabular-nums tracking-tight text-[var(--green)]">
           Earned: {earnedTon} TON
         </span>
       </div>
 
       {/* Body */}
-      <div className="mt-3 max-h-52 space-y-0.5 overflow-y-auto">
+      <div className="mt-3 max-h-[480px] overflow-y-auto">
         {histLoading ? (
-          <p className="text-xs text-zinc-600">Loading...</p>
+          <p className="text-xs text-[var(--text-muted)]">Loading...</p>
         ) : actions.length === 0 ? (
-          <p className="text-xs text-zinc-600">No on-chain activity yet</p>
+          <p className="text-xs text-[var(--text-muted)]">No on-chain activity yet</p>
         ) : (
           actions.map((action, i) => {
             const meta = getMeta(action.type);
@@ -87,18 +99,21 @@ export default function TransactionsCard() {
             return (
               <div
                 key={action.traceId || i}
-                className="flex items-center gap-2 rounded px-1.5 py-1 hover:bg-zinc-800/50"
+                className={cn(
+                  'flex h-[48px] items-center gap-2.5 px-1',
+                  i < actions.length - 1 && 'border-b border-[var(--separator)]',
+                )}
               >
                 <DirectionIcon direction={meta.direction} />
-                <span className={cn('w-28 shrink-0 truncate text-xs', meta.color)}>
+                <span className={cn('w-28 shrink-0 truncate text-xs font-medium', meta.color)}>
                   {meta.label}
                 </span>
                 {amount && (
-                  <span className="font-mono text-xs text-zinc-300">
+                  <span className="font-mono text-xs tabular-nums tracking-tight text-[var(--text-primary)]">
                     {formatTon(amount)} TON
                   </span>
                 )}
-                <span className="ml-auto shrink-0 text-[10px] text-zinc-600">
+                <span className="ml-auto shrink-0 text-[11px] tabular-nums text-[var(--text-muted)]">
                   {timeAgo(action.timestamp)}
                 </span>
               </div>
