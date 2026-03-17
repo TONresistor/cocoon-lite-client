@@ -22,7 +22,7 @@ export default function TransferStep({ data, next, back }: Props) {
     setError('');
     setStatus('Sending transfer...');
     try {
-      const result = await setupApi.transfer(data.nodeAddress, '15');
+      const result = await setupApi.transfer(data.nodeAddress, 'max');
       if (result.status === 'confirmed' || result.status === 'sent') {
         setStatus('Transfer confirmed!');
         setTimeout(next, 1000);
@@ -49,6 +49,15 @@ export default function TransferStep({ data, next, back }: Props) {
           <p className="text-sm text-zinc-400">
             Transfer funds from your owner wallet to the COCOON node wallet to begin operations.
           </p>
+
+          <div className="rounded-md border border-ton-blue/30 bg-ton-blue/10 px-4 py-3 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-sm font-medium text-zinc-100">Amount: maximum available</span>
+            </div>
+            <p className="text-xs text-zinc-400">
+              All funds (minus 0.5 TON gas reserve) will be transferred to the node wallet for staking. The node needs ~18+ TON to register and deposit the minimum stake.
+            </p>
+          </div>
 
           <div className="space-y-2">
             <div className="flex justify-between rounded bg-zinc-800 px-4 py-2 text-sm">

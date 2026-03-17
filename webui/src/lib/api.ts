@@ -1,11 +1,13 @@
 // --- Auth token ---
+// Persist in sessionStorage so it survives navigation and refresh.
 
 const params = new URLSearchParams(window.location.search);
-const AUTH_TOKEN = params.get('token') || '';
-// Clean URL without token
-if (AUTH_TOKEN) {
+const urlToken = params.get('token');
+if (urlToken) {
+  sessionStorage.setItem('auth_token', urlToken);
   window.history.replaceState({}, '', window.location.pathname);
 }
+const AUTH_TOKEN = sessionStorage.getItem('auth_token') || '';
 
 // --- Types ---
 
@@ -222,13 +224,50 @@ export const proxyApi = {
     }),
 };
 
+// --- Toncenter API ---
+
+export interface ToncenterAction {
+  type: string;
+  success: boolean;
+  timestamp: number;
+  details: Record<string, string>;
+  traceId: string;
+}
+
+export interface EarningsResponse {
+  payouts: Array<{ type: string; amount: string; timestamp: number }>;
+  totalNano: string;
+}
+
+export interface ConfirmResponse {
+  confirmed: boolean;
+  action: ToncenterAction | null;
+}
+
+export const toncenterApi = {
+  history: (limit = 20) => queryFn<{ actions: ToncenterAction[] }>(`/api/toncenter/history?limit=${limit}`),
+  earnings: queryFn<EarningsResponse>('/api/toncenter/earnings'),
+  confirm: (type: string, after: number) =>
+    request<ConfirmResponse>(`/api/toncenter/confirm?type=${encodeURIComponent(type)}&after=${after}`),
+};
+
 // --- Wallet API ---
+
+export interface UnstakeStatus {
+  active: boolean;
+  step: string | null;
+  error: string | null;
+  completedAt: number | null;
+}
 
 export const walletApi = {
   getInfo: queryFn<WalletInfo>('/api/wallet/info'),
+  stake: (amount: string) =>
+    post<TransactionResult>('/api/wallet/stake', { amount }),
   withdraw: (amount: string) =>
     post<TransactionResult>('/api/wallet/withdraw', { amount }),
   unstake: () => post<UnstakeResult>('/api/wallet/unstake'),
+  unstakeStatus: queryFn<UnstakeStatus>('/api/wallet/unstake/status'),
   cashout: (amount: string, destination: string) =>
     post<TransactionResult>('/api/wallet/cashout', { amount, destination }),
 };

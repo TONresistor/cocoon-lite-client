@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import Lottie from 'lottie-react';
+import cocoonAnim from './assets/cocoon.json';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import SetupWizard from './pages/setup/SetupWizard';
@@ -26,8 +28,11 @@ function AppRoutes() {
     staleTime: 30_000,
   });
 
-  // Don't render routes until we know setup state
-  if (isLoading) return null;
+  if (isLoading) return (
+    <div className="flex h-screen items-center justify-center bg-zinc-950">
+      <Lottie animationData={cocoonAnim} loop className="h-16 w-16" />
+    </div>
+  );
 
   const setupDone = setupStatus?.hasWallet === true && setupStatus?.hasConfig === true;
 

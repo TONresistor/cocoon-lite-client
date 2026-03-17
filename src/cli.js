@@ -63,6 +63,7 @@ program
   .command('ui')
   .description('Launch web management UI')
   .option('-p, --port <number>', 'Port for web UI', '3000')
+  .option('--verbosity <level>', 'Client verbosity level (0-5)', '1')
   .action((opts) => uiCommand(opts));
 
 program.parse();

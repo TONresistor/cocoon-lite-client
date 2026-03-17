@@ -1,10 +1,8 @@
 import { readWalletJson, writeWalletJson, readClientConf, writeClientConf, getHttpPort, DEFAULT_ROOT_CONTRACT } from '../../lib/config.js';
 import { generateWallet } from '../../lib/wallet.js';
 import { getBalance } from '../../lib/ton.js';
-import { sendFromOwnerWallet } from '../../lib/transactions.js';
-import { getCachedTonClient } from '../ton-cache.js';
+import { transferFunds } from '../../services/wallet.js';
 import { sendJSON } from '../server.js';
-import { toNano, Address } from '@ton/core';
 
 export function register(router) {
   /**
@@ -124,24 +122,12 @@ export function register(router) {
    */
   router.post('/api/setup/transfer', async ({ res, body }) => {
     try {
-      const wallet = readWalletJson();
-      if (!wallet) {
-        sendJSON(res, 400, { error: 'Wallet not found' });
-        return;
-      }
-
       const { to, amount } = body;
       if (!to || !amount) {
         sendJSON(res, 400, { error: 'Missing "to" or "amount" in request body' });
         return;
       }
-
-      const mnemonic = wallet.owner_wallet.seed_phrase.split(' ');
-      const destination = Address.parse(to);
-      const nanoAmount = toNano(amount);
-      const client = getCachedTonClient();
-
-      const { seqno } = await sendFromOwnerWallet(client, mnemonic, destination, nanoAmount);
+      const { seqno } = await transferFunds({ to, amount });
       sendJSON(res, 200, { seqno, status: 'sent' });
     } catch (err) {
       sendJSON(res, 500, { error: `Transfer failed: ${err.message}` });

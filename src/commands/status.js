@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { getHttpPort } from '../lib/config.js';
-import { formatTon } from '../lib/transactions.js';
+import { formatTon } from '../lib/constants.js';
 import {
   printBanner, row, separator, handleClientError,
   DIM, CYAN, GREEN, RED,

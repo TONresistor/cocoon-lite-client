@@ -4,6 +4,7 @@ import { resolve, extname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { randomUUID } from 'crypto';
+import { apiLogger } from '../lib/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WEBUI_DIST = resolve(__dirname, '../../webui/dist');
@@ -218,6 +219,10 @@ export function createServer(port) {
             sendJSON(res, status, { error: err.message || 'Internal server error' });
           }
         }
+        // Log POST/PUT/DELETE requests (not GETs to avoid noise from polling)
+        if (req.method !== 'GET') {
+          apiLogger.info({ method: req.method, path: pathname, status: res.statusCode }, 'API request');
+        }
         return;
       }
 
@@ -231,8 +236,8 @@ export function createServer(port) {
   });
 
   server.listen(port, '127.0.0.1', () => {
-    console.log(`COCOON WebUI running at http://127.0.0.1:${port}`);
-    console.log('Auth token:', token);
+    apiLogger.info(`COCOON WebUI running at http://127.0.0.1:${port}`);
+    apiLogger.info({ token }, 'Auth token');
   });
 
   return { server, router, token };

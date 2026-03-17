@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState, useEffect, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Settings, LayoutDashboard, MessageSquare, Wallet, Menu, X, Play, Square, Loader2, Plus, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import cocoonAnim from '../assets/cocoon.json';
 import { cn } from '../lib/utils';
 import { clientApi } from '../lib/api';
 import { usePollingInterval } from '../hooks/usePollingInterval';
+import { useSSEEvents } from '../hooks/useSSEContext';
 import { useChatStore } from '../stores/chatStore';
 import { Button } from './ui/button';
 
@@ -31,6 +32,17 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
   const deleteConversation = useChatStore(s => s.deleteConversation);
   const setActiveConversation = useChatStore(s => s.setActiveConversation);
   const pollingInterval = usePollingInterval();
+  const { connected: sseConnected } = useSSEEvents();
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const clearErrorAfterDelay = useCallback(() => {
+    const t = setTimeout(() => setActionError(null), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (actionError) return clearErrorAfterDelay();
+  }, [actionError, clearErrorAfterDelay]);
 
   const { data: clientStatus } = useQuery({
     queryKey: ['clientStatus'],
@@ -43,32 +55,43 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
   const startMutation = useMutation({
     mutationFn: () => clientApi.start(),
     onSuccess: () => {
-      // Invalidate (not reset!) — keeps observer alive while refetching
+      setActionError(null);
       queryClient.invalidateQueries({ queryKey: ['clientStatus'] });
       queryClient.invalidateQueries({ queryKey: ['jsonStats'] });
       queryClient.invalidateQueries({ queryKey: ['models'] });
     },
+    onError: (err: Error) => setActionError(err.message),
   });
 
   const stopMutation = useMutation({
     mutationFn: () => clientApi.stop(),
     onSuccess: () => {
+      setActionError(null);
       queryClient.invalidateQueries({ queryKey: ['clientStatus'] });
       queryClient.invalidateQueries({ queryKey: ['jsonStats'] });
     },
+    onError: (err: Error) => setActionError(err.message),
   });
 
   const isActing = startMutation.isPending || stopMutation.isPending;
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-zinc-800 bg-zinc-950">
-      <div className="flex items-center gap-2 border-b border-zinc-800 px-6 py-5">
-        <Lottie animationData={cocoonAnim} loop className="h-9 w-9" />
-        <span className="text-lg font-bold text-zinc-100">COCOON</span>
-        {onClose && (
-          <button onClick={onClose} className="ml-auto text-zinc-400 hover:text-zinc-100 lg:hidden">
-            <X size={20} />
-          </button>
+      <div className="border-b border-zinc-800 px-6 py-5">
+        <div className="flex items-center gap-2">
+          <Lottie animationData={cocoonAnim} loop className="h-9 w-9" />
+          <span className="text-lg font-bold text-zinc-100">COCOON</span>
+          {onClose && (
+            <button onClick={onClose} className="ml-auto text-zinc-400 hover:text-zinc-100 lg:hidden">
+              <X size={20} />
+            </button>
+          )}
+        </div>
+        {!sseConnected && (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <span className="text-xs text-amber-500">Live updates paused</span>
+          </div>
         )}
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
@@ -126,6 +149,9 @@ function Sidebar({ onClose, setupDone }: { onClose?: () => void; setupDone: bool
       )}
       {setupDone && (
         <div className="border-t border-zinc-800 px-3 py-3">
+          {actionError && (
+            <p className="mb-2 rounded bg-red-950/50 px-2 py-1.5 text-[11px] text-red-400">{actionError}</p>
+          )}
           {isRunning ? (
             <Button
               variant="destructive"

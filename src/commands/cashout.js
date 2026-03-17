@@ -4,13 +4,13 @@ import { Address, toNano, fromNano } from '@ton/core';
 import { WalletContractV4 } from '@ton/ton';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { readWalletJson } from '../lib/config.js';
-import { withRetry } from '../lib/ton.js';
-import { getCachedTonClient } from '../api/ton-cache.js';
+import { getCachedTonClient, withRetry, waitForSeqnoChange } from '../lib/ton.js';
+import { SC_RESERVE } from '../lib/constants.js';
+import { sendFromOwnerWallet } from '../contracts/index.js';
 import {
   printBanner, row, success, error, separator,
   DIM, CYAN, GREEN, YELLOW,
 } from '../lib/ui.js';
-import { sendFromOwnerWallet, waitForSeqnoChange, SC_RESERVE } from '../lib/transactions.js';
 
 export async function cashoutCommand(amountArg, destination) {
   printBanner();

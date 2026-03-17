@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatTon } from '../lib/transactions.js';
+import { formatTon } from '../lib/constants.js';
 
 describe('formatTon', () => {
   it('formats 1 TON (1e9 nano) correctly', () => {

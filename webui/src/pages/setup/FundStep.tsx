@@ -44,8 +44,18 @@ export default function FundStep({ data, next, back }: Props) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-md border border-ton-blue/30 bg-ton-blue/10 px-4 py-3 space-y-2">
+            <p className="text-sm font-medium text-zinc-100">Send at least 21 TON to your owner wallet</p>
+            <ul className="space-y-1 text-xs text-zinc-400">
+              <li>15 TON — minimum stake deposit</li>
+              <li>3 TON — gas fees (registration + staking transactions)</li>
+              <li>2 TON — node operating balance</li>
+              <li>0.5 TON — owner wallet gas reserve</li>
+            </ul>
+          </div>
+
           <p className="text-sm text-zinc-400">
-            Send TON to the owner address below. The balance will update automatically.
+            Send TON to the address below. The balance will update automatically.
           </p>
 
           <div className="flex items-center gap-2 rounded bg-zinc-800 p-3">

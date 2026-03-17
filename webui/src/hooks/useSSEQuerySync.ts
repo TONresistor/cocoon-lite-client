@@ -17,6 +17,7 @@ const EVENT_QUERY_MAP: Record<string, readonly (readonly string[])[]> = {
   proxy_connecting: [QK.jsonStats],
   staked: [QK.jsonStats, QK.walletInfo],
   ton_synced: [QK.jsonStats, QK.walletInfo],
+  milestone: [QK.jsonStats, QK.walletInfo],
   listening: [QK.clientStatus],
 };
 

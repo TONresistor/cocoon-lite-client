@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '../lib/api';
 import { formatTon } from '../lib/format';
@@ -9,7 +9,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Alert, AlertDescription } from './ui/alert';
 import ConfirmDialog from './ConfirmDialog';
-import { ArrowDownToLine } from 'lucide-react';
+import { ArrowDownToLine, Loader2 } from 'lucide-react';
 
 const SC_RESERVE = 50_000_000n; // 0.05 TON in nano
 
@@ -37,6 +37,20 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      const timer = setTimeout(() => mutation.reset(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [mutation.isSuccess]);
+
+  // Client-side amount validation
+  const parsedAmount = parseFloat(amount);
+  const availableTon = Number(formatTon(available.toString()));
+  const amountExceedsBalance = !isNaN(parsedAmount) && parsedAmount > availableTon;
+  const amountInvalid = amount.trim() !== '' && (isNaN(parsedAmount) || parsedAmount <= 0);
+  const submitDisabled = !amount.trim() || amountInvalid || amountExceedsBalance || mutation.isPending;
+
   const handleMax = () => {
     if (available > 0n) {
       setAmount(formatTon(available.toString()));
@@ -59,7 +73,7 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ArrowDownToLine size={18} className="text-ton-blue" />
-            Withdraw (COCOON to Owner)
+            Withdraw (Node &#8594; Owner)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -82,6 +96,16 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
             <p className="text-xs text-zinc-500">
               0.05 TON reserved for smart contract operations.
             </p>
+            {amountExceedsBalance && (
+              <p className="text-xs text-red-400">
+                Amount exceeds available balance ({formatTon(available.toString())} TON).
+              </p>
+            )}
+            {amountInvalid && (
+              <p className="text-xs text-red-400">
+                Enter a valid amount.
+              </p>
+            )}
           </div>
 
           {mutation.isError && (
@@ -100,9 +124,9 @@ export default function WithdrawForm({ cocoonBalance }: Props) {
           <Button
             className="w-full"
             onClick={handleSubmit}
-            disabled={!amount.trim() || mutation.isPending}
+            disabled={submitDisabled}
           >
-            {mutation.isPending ? 'Processing...' : 'Withdraw'}
+            {mutation.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : 'Withdraw'}
           </Button>
         </CardContent>
       </Card>

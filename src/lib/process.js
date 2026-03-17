@@ -62,9 +62,12 @@ export function spawnWithPrefix(cmd, args, { prefix, color, env = {}, quiet = fa
       }
     }
 
-    // In quiet mode, suppress all output — real errors are already caught
-    // by the lifecycle patterns above (fatal/error events always print).
-    if (quiet) return;
+    // In quiet mode, forward non-lifecycle lines as 'log' events
+    // so the WebUI Event Log can display them at higher verbosity.
+    if (quiet) {
+      if (onEvent) onEvent('log', [clean.trim()]);
+      return;
+    }
 
     // Verbose mode: show everything
     const out = stream === 'stderr' ? process.stderr : process.stdout;

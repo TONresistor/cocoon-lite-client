@@ -1,11 +1,16 @@
+process.env.COCOON_MODE = 'webui';
+
 import { createServer } from '../api/server.js';
 import { register as registerSetup } from '../api/routes/setup.js';
 import { register as registerClient } from '../api/routes/client.js';
 import { register as registerProxy } from '../api/routes/proxy.js';
 import { register as registerWallet } from '../api/routes/wallet.js';
+import { register as registerToncenter } from '../api/routes/toncenter.js';
+import { setDefaultVerbosity } from '../services/client-state.js';
 
 export async function uiCommand(options) {
   const port = parseInt(options.port, 10) || 3000;
+  if (options.verbosity) setDefaultVerbosity(options.verbosity);
 
   const { server, router, token } = createServer(port);
 
@@ -14,6 +19,7 @@ export async function uiCommand(options) {
   registerClient(router);
   registerProxy(router);
   registerWallet(router);
+  registerToncenter(router);
 
   // Open browser (best-effort, platform-specific)
   const url = `http://127.0.0.1:${port}?token=${token}`;

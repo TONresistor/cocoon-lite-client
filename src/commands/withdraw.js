@@ -2,13 +2,13 @@ import chalk from 'chalk';
 import { confirm } from '@inquirer/prompts';
 import { Address, toNano, fromNano } from '@ton/core';
 import { readWalletJson } from '../lib/config.js';
-import { withRetry } from '../lib/ton.js';
-import { getCachedTonClient } from '../api/ton-cache.js';
+import { getCachedTonClient, withRetry, waitForSeqnoChange } from '../lib/ton.js';
+import { SC_RESERVE } from '../lib/constants.js';
+import { sendFromCocoonWallet } from '../contracts/index.js';
 import {
   printBanner, row, success, error, separator,
   DIM, CYAN, GREEN, YELLOW,
 } from '../lib/ui.js';
-import { sendFromCocoonWallet, waitForSeqnoChange, SC_RESERVE } from '../lib/transactions.js';
 
 export async function withdrawCommand(amountArg) {
   printBanner();

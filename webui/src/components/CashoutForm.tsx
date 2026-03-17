@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '../lib/api';
 import { formatTon } from '../lib/format';
@@ -9,7 +9,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Alert, AlertDescription } from './ui/alert';
 import ConfirmDialog from './ConfirmDialog';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 
 interface Props {
   ownerBalance?: string;
@@ -31,6 +31,13 @@ export default function CashoutForm({ ownerBalance }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      const timer = setTimeout(() => mutation.reset(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [mutation.isSuccess]);
+
   const handleMax = () => {
     if (ownerBalance) {
       setAmount('max');
@@ -43,7 +50,7 @@ export default function CashoutForm({ ownerBalance }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Send size={18} className="text-ton-blue" />
-            Cashout (Owner to External)
+            Cashout (Owner &#8594; External)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,7 +102,7 @@ export default function CashoutForm({ ownerBalance }: Props) {
             onClick={() => setShowConfirm(true)}
             disabled={(!amount.trim() && amount !== 'max') || !destination.trim() || mutation.isPending}
           >
-            {mutation.isPending ? 'Processing...' : 'Cashout'}
+            {mutation.isPending ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</> : 'Cashout'}
           </Button>
         </CardContent>
       </Card>
@@ -108,7 +115,7 @@ export default function CashoutForm({ ownerBalance }: Props) {
           mutation.mutate({ amt: amount, dest: destination });
         }}
         title="Confirm Cashout"
-        description={`Send ${amount} TON to ${destination}?`}
+        description={`Send ${amount === 'max' && ownerBalance ? formatTon(ownerBalance) : amount} TON to ${destination}?`}
       />
     </>
   );

@@ -1,12 +1,10 @@
 import { readWalletJson } from '../../lib/config.js';
 import { getBalance } from '../../lib/ton.js';
-import { sendFromCocoonWallet, SC_RESERVE } from '../../lib/transactions.js';
-import { getCachedTonClient } from '../ton-cache.js';
 import { getClientPort, isClientRunning } from '../../services/client-state.js';
-import { withdrawFunds, cashoutFunds } from '../../services/wallet.js';
+import { withdrawFunds, cashoutFunds, stakeFunds, transferToOwner } from '../../services/wallet.js';
 import { sendJSON } from '../server.js';
-import { Address } from '@ton/core';
 import { request as httpRequest } from 'http';
+import { walletLogger } from '../../lib/logger.js';
 
 /**
  * Make an HTTP GET request and return the response body as text.
@@ -79,6 +77,20 @@ export function register(router) {
   });
 
   /**
+   * POST /api/wallet/stake
+   * Transfer TON from owner wallet to cocoon wallet (for staking).
+   */
+  router.post('/api/wallet/stake', async ({ res, body }) => {
+    try {
+      const { seqno } = await stakeFunds({ amount: body.amount });
+      sendJSON(res, 200, { status: 'sent', seqno });
+    } catch (err) {
+      const status = err.message.includes('No wallet') || err.message.includes('not available') || err.message.includes('Insufficient') || err.message.includes('required') ? 400 : 500;
+      sendJSON(res, status, { error: `Stake failed: ${err.message}` });
+    }
+  });
+
+  /**
    * GET /api/wallet/unstake/status
    * Returns current unstake operation state.
    */
@@ -130,7 +142,7 @@ export function register(router) {
           const closeResult = await httpGet(port, `/request/close?proxy=${proxyAddr}`);
           const closeClean = closeResult.replace(/<[^>]*>/g, '').toLowerCase();
           if (!closeClean.includes('request sent')) {
-            console.error('Unstake step 1 failed: close proxy request not acknowledged');
+            walletLogger.error('Unstake step 1 failed: close proxy request not acknowledged');
           }
         }
 
@@ -142,31 +154,32 @@ export function register(router) {
           const withdrawResult = await httpGet(port, `/request/withdraw?proxy=${proxyAddr}`);
           const withdrawClean = withdrawResult.replace(/<[^>]*>/g, '').toLowerCase();
           if (!withdrawClean.includes('request sent')) {
-            console.error('Unstake step 2 failed: withdraw request not acknowledged');
+            walletLogger.error('Unstake step 2 failed: withdraw request not acknowledged');
           }
         }
 
         // Step 3: Transfer from cocoon wallet to owner wallet
+        // Wait for proxy withdraw funds to land on node wallet (poll up to 2 min)
         unstakeState.step = 'transferring';
-        await new Promise(r => setTimeout(r, 10000));
-        const cocoonAddr = wallet.node_wallet.address;
-        if (cocoonAddr) {
-          const client = getCachedTonClient();
-          const cocoonAddress = Address.parse(cocoonAddr);
-          const ownerAddress = Address.parse(wallet.owner_wallet.address);
-          const nodeSecretKey = Buffer.from(wallet.node_wallet.private_key_base64, 'base64');
-
-          const bal = await getBalance(cocoonAddr);
-          if (bal.nano > SC_RESERVE) {
-            await sendFromCocoonWallet(client, cocoonAddress, nodeSecretKey, ownerAddress, bal.nano - SC_RESERVE);
+        const walletData = readWalletJson();
+        const nodeAddr = walletData?.node_wallet?.address;
+        if (nodeAddr) {
+          const initialBal = await getBalance(nodeAddr);
+          const deadline = Date.now() + 120_000;
+          while (Date.now() < deadline) {
+            await new Promise(r => setTimeout(r, 5000));
+            const bal = await getBalance(nodeAddr);
+            // Funds arrived if balance increased significantly (> 1 TON more)
+            if (bal.nano > initialBal.nano + 1_000_000_000n) break;
           }
         }
+        await transferToOwner();
 
         unstakeState.step = 'done';
         unstakeState.active = false;
         unstakeState.completedAt = Date.now();
       } catch (err) {
-        console.error(`Unstake error: ${err.message}`);
+        walletLogger.error({ err }, `Unstake error: ${err.message}`);
         unstakeState.error = err.message;
         unstakeState.active = false;
       }

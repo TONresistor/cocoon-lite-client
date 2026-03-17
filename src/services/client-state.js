@@ -11,6 +11,8 @@ const state = {
   running: false,
   httpPort: null,
   startedAt: null,
+  defaultVerbosity: '1',
+  proxyReady: false,
 };
 
 /** Get the HTTP port the client-runner is listening on. */
@@ -46,4 +48,25 @@ export function clearClientState() {
   state.running = false;
   state.httpPort = null;
   state.startedAt = null;
+  state.proxyReady = false;
+}
+
+/** Mark the proxy handshake as completed — safe to query /jsonstats. */
+export function setProxyReady() {
+  state.proxyReady = true;
+}
+
+/** Whether the proxy handshake has completed. */
+export function isProxyReady() {
+  return state.proxyReady;
+}
+
+/** Set the default verbosity used when starting the client via the API. */
+export function setDefaultVerbosity(level) {
+  state.defaultVerbosity = level;
+}
+
+/** Get the default verbosity level. */
+export function getDefaultVerbosity() {
+  return state.defaultVerbosity;
 }

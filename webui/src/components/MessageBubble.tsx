@@ -5,7 +5,7 @@ import cocoonAnim from '../assets/cocoon.json';
 import userAnim from '../assets/user.json';
 import type { ChatMessage } from '../stores/chatStore';
 import { cn } from '../lib/utils';
-import { Bot, ChevronDown } from 'lucide-react';
+import { Bot, ChevronDown, Copy, Check } from 'lucide-react';
 
 interface Props {
   message: ChatMessage;
@@ -21,6 +21,13 @@ function parseThinking(content: string): { thinking: string; reply: string } {
 const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Props) {
   const isUser = message.role === 'user';
   const [thinkOpen, setThinkOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   if (message.role === 'system') return null;
 
@@ -28,20 +35,21 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
   const isThinking = isStreaming && !reply && message.content.startsWith('<think>');
 
   return (
-    <div className={cn('flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('group/msg flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-800">
           <Bot size={14} className="text-zinc-400" />
         </div>
       )}
-      <div
-        className={cn(
-          'max-w-[80%] rounded-lg text-sm',
-          isUser
-            ? 'bg-ton-blue text-white px-4 py-2.5'
-            : 'bg-zinc-800 text-zinc-200',
-        )}
-      >
+      <div className="relative max-w-[80%]">
+        <div
+          className={cn(
+            'rounded-lg text-sm',
+            isUser
+              ? 'bg-ton-blue text-white px-4 py-2.5'
+              : 'bg-zinc-800 text-zinc-200',
+          )}
+        >
         {isUser ? (
           <p className="whitespace-pre-wrap">{message.content}</p>
         ) : (
@@ -76,6 +84,14 @@ const MessageBubble = memo(function MessageBubble({ message, isStreaming }: Prop
             </div>
           </>
         )}
+        </div>
+        <button
+          onClick={handleCopy}
+          className="absolute -bottom-5 right-1 hidden rounded p-0.5 text-zinc-600 transition-colors hover:text-zinc-300 group-hover/msg:block"
+          title="Copy message"
+        >
+          {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+        </button>
       </div>
       {isUser && (
         <Lottie animationData={userAnim} loop={false} className="h-7 w-7 shrink-0" />

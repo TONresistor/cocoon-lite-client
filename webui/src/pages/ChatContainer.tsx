@@ -8,6 +8,8 @@ import ChatInput from '../components/ChatInput';
 import { Select } from '../components/ui/select';
 import { Button } from '../components/ui/button';
 import { Settings2, Trash2 } from 'lucide-react';
+import Lottie from 'lottie-react';
+import cocoonAnim from '../assets/cocoon.json';
 import { useEffect, useState } from 'react';
 
 export default function ChatContainer() {
@@ -74,14 +76,17 @@ export default function ChatContainer() {
 
           {showSettings && (
             <div className="flex items-center gap-4 text-sm">
-              <label className="flex items-center gap-2 text-zinc-300">
+              <label
+                className="flex items-center gap-2 text-zinc-300"
+                title="Skip chain-of-thought reasoning for faster responses"
+              >
                 <input
                   type="checkbox"
                   checked={settings.noThink}
                   onChange={toggleNoThink}
                   className="rounded"
                 />
-                /no_think
+                Disable thinking
               </label>
               <label className="flex items-center gap-2 text-zinc-300">
                 Temp:
@@ -101,10 +106,20 @@ export default function ChatContainer() {
         </div>
 
         {/* Messages */}
-        <MessageList
-          messages={activeConversation?.messages ?? []}
-          isStreaming={isStreaming}
-        />
+        {!models?.data?.length ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8">
+            <Lottie animationData={cocoonAnim} loop className="h-12 w-12 opacity-40" />
+            <p className="text-sm font-medium text-zinc-300">No models available</p>
+            <p className="max-w-xs text-center text-xs text-zinc-500">
+              Start your node from the sidebar and wait for it to reach the Ready state.
+            </p>
+          </div>
+        ) : (
+          <MessageList
+            messages={activeConversation?.messages ?? []}
+            isStreaming={isStreaming}
+          />
+        )}
 
         {/* Input */}
         <ChatInput

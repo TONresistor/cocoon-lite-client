@@ -1,58 +1,93 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { walletApi } from '../lib/api';
+import { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { walletApi, clientApi, type UnstakeStatus } from '../lib/api';
+import { QK } from '../lib/queryKeys';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
 import { Badge } from './ui/badge';
 import ConfirmDialog from './ConfirmDialog';
 import { cn } from '../lib/utils';
-import { Unplug, Loader2, CheckCircle, XCircle, Circle } from 'lucide-react';
+import { Unplug, Loader2, CheckCircle, XCircle, Circle, AlertTriangle } from 'lucide-react';
 
 interface StepState {
   label: string;
   status: 'pending' | 'in-progress' | 'done' | 'error';
 }
 
+function deriveSteps(status: UnstakeStatus | undefined): StepState[] {
+  const base: StepState[] = [
+    { label: 'Close proxy contract (release stake)', status: 'pending' },
+    { label: 'Withdraw from proxy to node wallet', status: 'pending' },
+    { label: 'Transfer from node to owner wallet', status: 'pending' },
+  ];
+  if (!status || !status.step) return base;
+
+  const stepMap: Record<string, number> = {
+    closing: 0,
+    withdrawing: 1,
+    transferring: 2,
+    done: 3,
+  };
+  const current = stepMap[status.step] ?? -1;
+
+  return base.map((s, i) => {
+    if (status.error && i === current) return { ...s, status: 'error' as const };
+    if (i < current) return { ...s, status: 'done' as const };
+    if (i === current && !status.error) {
+      return status.step === 'done'
+        ? { ...s, status: 'done' as const }
+        : { ...s, status: 'in-progress' as const };
+    }
+    return s;
+  });
+}
+
 export default function UnstakeFlow() {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [steps, setSteps] = useState<StepState[]>([
-    { label: 'Closing proxy contract...', status: 'pending' },
-    { label: 'Withdrawing from proxy...', status: 'pending' },
-    { label: 'Transferring to owner...', status: 'pending' },
-  ]);
+  const [isComplete, setIsComplete] = useState(false);
+  const [pollEnabled, setPollEnabled] = useState(false);
+
+  // Check client running status
+  const { data: clientStatus } = useQuery({
+    queryKey: QK.clientStatus,
+    queryFn: clientApi.getStatus,
+    refetchInterval: 5000,
+  });
+  const isClientRunning = clientStatus?.running === true;
+
+  // Poll unstake progress
+  const { data: unstakeStatus } = useQuery({
+    queryKey: QK.unstakeStatus,
+    queryFn: walletApi.unstakeStatus,
+    refetchInterval: 2000,
+    enabled: pollEnabled,
+  });
+
+  const steps = deriveSteps(pollEnabled ? unstakeStatus : undefined);
+
+  // Stop polling when done or error, mark completion
+  useEffect(() => {
+    if (!unstakeStatus) return;
+    if (unstakeStatus.step === 'done') {
+      setPollEnabled(false);
+      setIsComplete(true);
+    } else if (unstakeStatus.error) {
+      setPollEnabled(false);
+    } else if (!unstakeStatus.active && !unstakeStatus.step) {
+      // Not active and no step — nothing running
+      setPollEnabled(false);
+    }
+  }, [unstakeStatus]);
 
   const mutation = useMutation({
     mutationFn: () => walletApi.unstake(),
-    onMutate: () => {
-      setSteps((prev) =>
-        prev.map((s, i) =>
-          i === 0 ? { ...s, status: 'in-progress' } : s,
-        ),
-      );
-    },
-    onSuccess: (data) => {
-      setSteps((prev) =>
-        prev.map((s, i) => {
-          if (i < data.step) return { ...s, status: 'done' };
-          if (i === data.step - 1) {
-            return data.status === 'error'
-              ? { ...s, status: 'error' }
-              : { ...s, status: 'in-progress' };
-          }
-          return s;
-        }),
-      );
-      if (data.status === 'transferred') {
-        setSteps((prev) => prev.map((s) => ({ ...s, status: 'done' })));
-      }
+    onSuccess: () => {
+      // Start polling after the mutation fires
+      setPollEnabled(true);
     },
     onError: () => {
-      setSteps((prev) =>
-        prev.map((s) =>
-          s.status === 'in-progress' ? { ...s, status: 'error' } : s,
-        ),
-      );
+      setPollEnabled(false);
     },
   });
 
@@ -69,20 +104,31 @@ export default function UnstakeFlow() {
     }
   };
 
+  const buttonDisabled = mutation.isPending || isComplete || !isClientRunning || pollEnabled;
+
   return (
     <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Unplug size={18} className="text-ton-blue" />
-            Unstake
+            Reclaim Stake
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-zinc-400">
-            This 3-step process will close the proxy contract, withdraw funds, and transfer
-            them to your owner wallet. This may take several minutes.
+            Reclaims your deposited stake from the proxy contract back to your owner wallet.
+            3 steps: close contract, withdraw to node, transfer to owner. Takes a few minutes.
           </p>
+
+          {!isClientRunning && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                The node must be running to reclaim your stake. Start it from the sidebar.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="space-y-3">
             {steps.map((step, i) => (
@@ -120,12 +166,30 @@ export default function UnstakeFlow() {
             </Alert>
           )}
 
+          {unstakeStatus?.error && (
+            <Alert variant="destructive">
+              <AlertDescription>{unstakeStatus.error}</AlertDescription>
+            </Alert>
+          )}
+
+          {isComplete && (
+            <Alert variant="success">
+              <AlertDescription>Unstake complete. Funds returned to owner wallet.</AlertDescription>
+            </Alert>
+          )}
+
           <Button
             className="w-full"
             onClick={() => setShowConfirm(true)}
-            disabled={mutation.isPending}
+            disabled={buttonDisabled}
           >
-            {mutation.isPending ? 'Processing...' : 'Start Unstake'}
+            {mutation.isPending || pollEnabled ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</>
+            ) : isComplete ? (
+              'Unstake Complete'
+            ) : (
+              'Start Unstake'
+            )}
           </Button>
         </CardContent>
       </Card>

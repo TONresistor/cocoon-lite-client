@@ -13,6 +13,8 @@ export default function ProxyCard({ isRunning, stats }: Props) {
   const proxyInfo = stats?.proxies?.[0];
   const isProxyReady = proxyConn?.is_ready === true;
   const isStaked = (proxyInfo?.tokens_payed ?? 0) > 0;
+  const pricePerToken = stats?.root_contract_config?.price_per_token ?? 0;
+  const tokensToTon = (tokens: number) => (tokens * pricePerToken / 1e9).toFixed(4);
 
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
@@ -42,7 +44,7 @@ export default function ProxyCard({ isRunning, stats }: Props) {
           {proxyInfo && (
             <div className="flex items-center justify-between">
               <span className="text-xs text-zinc-500">Tokens</span>
-              <span className="font-mono text-xs text-zinc-400">{proxyInfo.tokens_payed}</span>
+              <span className="font-mono text-xs text-zinc-400">{tokensToTon(proxyInfo.tokens_payed)} TON</span>
             </div>
           )}
           <div className="flex items-center justify-between">

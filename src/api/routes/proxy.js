@@ -1,5 +1,5 @@
 import { request as httpRequest, Agent } from 'http';
-import { getClientPort, isClientRunning } from '../../services/client-state.js';
+import { getClientPort, isClientRunning, isProxyReady } from '../../services/client-state.js';
 import { sendJSON } from '../server.js';
 
 const PROXY_TIMEOUT_MS = 5000;
@@ -136,6 +136,13 @@ export function register(router) {
       sendJSON(res, 503, { error: 'Client is not running' });
       return;
     }
+    // Block jsonstats until proxy handshake completes — the C++ binary crashes
+    // (SIGSEGV) if /jsonstats is called while a proxy connection exists but
+    // the handshake hasn't finished yet (conn->proxy() is null).
+    if (!isProxyReady()) {
+      sendJSON(res, 503, { error: 'Client starting, proxy not ready yet' });
+      return;
+    }
     try {
       await cachedProxy(port, '/jsonstats', req.headers, res);
     } catch {
@@ -151,6 +158,10 @@ export function register(router) {
     const port = getClientPort();
     if (!port || !isClientRunning()) {
       sendJSON(res, 503, { error: 'Client is not running' });
+      return;
+    }
+    if (!isProxyReady()) {
+      sendJSON(res, 503, { error: 'Client starting, proxy not ready yet' });
       return;
     }
     try {

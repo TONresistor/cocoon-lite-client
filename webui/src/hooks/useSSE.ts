@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 export interface SSEEvent {
   type: string;
+  level?: string;
   message: string;
+  category?: string;
   timestamp: number;
 }
 

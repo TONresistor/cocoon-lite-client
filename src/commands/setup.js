@@ -6,11 +6,11 @@ import {
   writeClientConf, writeWalletJson, readWalletJson, readClientConf,
 } from '../lib/config.js';
 import { generateWallet } from '../lib/wallet.js';
-import { getBalance, waitForBalance, createTonClient, withRetry } from '../lib/ton.js';
+import { getBalance, waitForBalance, createTonClient, withRetry, waitForSeqnoChange } from '../lib/ton.js';
 import { toNano, fromNano, Address } from '@ton/core';
 import { WalletContractV4 } from '@ton/ton';
 import { mnemonicToPrivateKey } from '@ton/crypto';
-import { sendFromOwnerWallet, waitForSeqnoChange } from '../lib/transactions.js';
+import { sendFromOwnerWallet } from '../contracts/index.js';
 import chalk from 'chalk';
 import {
   wizardFrame, successBox, noteBox, success, error, updateLine, finishLine,
