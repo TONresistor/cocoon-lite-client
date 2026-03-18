@@ -18,7 +18,11 @@ export default function DoneStep() {
           </p>
           <Button
             className="mt-4"
-            onClick={() => queryClient.invalidateQueries({ queryKey: QK.setupStatus })}
+            onClick={() => {
+              sessionStorage.removeItem('setup_step');
+              sessionStorage.removeItem('setup_data');
+              queryClient.invalidateQueries({ queryKey: QK.setupStatus });
+            }}
           >
             Go to Dashboard
           </Button>

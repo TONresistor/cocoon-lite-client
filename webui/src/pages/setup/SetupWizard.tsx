@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import WalletStep from './WalletStep';
 import InstanceStep from './InstanceStep';
@@ -17,13 +17,22 @@ export interface SetupData {
 }
 
 export default function SetupWizard() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<SetupData>({
-    ownerAddress: '',
-    nodeAddress: '',
-    instance: 0,
-    apiKey: '',
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = sessionStorage.getItem('setup_step');
+    return saved ? Math.min(parseInt(saved, 10), steps.length - 1) : 0;
   });
+  const [data, setData] = useState<SetupData>(() => {
+    try {
+      const saved = sessionStorage.getItem('setup_data');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { ownerAddress: '', nodeAddress: '', instance: 0, apiKey: '' };
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('setup_step', String(currentStep));
+    sessionStorage.setItem('setup_data', JSON.stringify(data));
+  }, [currentStep, data]);
 
   const next = () => setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   const back = () => setCurrentStep((s) => Math.max(s - 1, 0));

@@ -107,6 +107,19 @@ export default function Dashboard() {
 
   const isFullyReady = displayPhase >= 4;
 
+  // Track time stuck in starting state
+  const startTimeRef = useRef<number | null>(null);
+  const [stuckWarning, setStuckWarning] = useState(false);
+  useEffect(() => {
+    if (isRunning && !isFullyReady) {
+      if (!startTimeRef.current) startTimeRef.current = Date.now();
+      const timer = setTimeout(() => setStuckWarning(true), 5 * 60 * 1000);
+      return () => clearTimeout(timer);
+    }
+    startTimeRef.current = null;
+    setStuckWarning(false);
+  }, [isRunning, isFullyReady]);
+
   // Proxy details from jsonstats
   const proxyConn = stats?.proxy_connections?.[0];
   const proxyInfo = stats?.proxies?.[0];
@@ -147,8 +160,8 @@ export default function Dashboard() {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Node</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] shadow-[var(--shadow-glow-green)]" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-pastel-bg)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green-pastel)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green-pastel)]" />
                   Running
                 </span>
               </div>
@@ -166,8 +179,8 @@ export default function Dashboard() {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Node</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[var(--shadow-glow-accent)]" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-pastel-bg)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-pastel)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-pastel)] animate-pulse" />
                   Starting
                 </span>
               </div>
@@ -201,6 +214,12 @@ export default function Dashboard() {
                   );
                 })}
               </div>
+              {stuckWarning && (
+                <div className="mt-2.5 flex items-start gap-2 rounded-[var(--radius-sm)] bg-[var(--amber-pastel-bg)] px-2.5 py-2 text-[11px] text-[var(--amber-pastel)]">
+                  <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+                  <span>Taking longer than expected. Try Stop then Start, or check your balance.</span>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -265,13 +284,13 @@ export default function Dashboard() {
             <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--text-primary)]">Proxy</span>
             {isRunning && stats && (
               isProxyReady ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green)] shadow-[var(--shadow-glow-green)]" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-pastel-bg)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--green-pastel)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--green-pastel)]" />
                   Connected
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-dim)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] shadow-[var(--shadow-glow-accent)]" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent-pastel-bg)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-pastel)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-pastel)] animate-pulse" />
                   {proxyConn ? 'Connecting' : 'Waiting'}
                 </span>
               )
@@ -289,7 +308,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-[var(--text-secondary)]">Status</span>
                 {isStaked ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-dim)] px-2 py-0.5 text-[11px] font-medium text-[var(--green)]">Active</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--green-pastel-bg)] px-2 py-0.5 text-[11px] font-medium text-[var(--green-pastel)]">Active</span>
                 ) : (
                   <span className="text-xs font-medium text-[var(--text-secondary)]">Pending</span>
                 )}

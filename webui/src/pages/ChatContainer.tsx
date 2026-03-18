@@ -113,6 +113,7 @@ export default function ChatContainer() {
             <p className="max-w-xs text-center text-xs text-[var(--text-muted)]">
               Start your node from the sidebar and wait for it to reach the Ready state.
             </p>
+            <a href="/dashboard" className="text-xs text-[var(--accent)] hover:underline">Go to Dashboard</a>
           </div>
         ) : (
           <MessageList
