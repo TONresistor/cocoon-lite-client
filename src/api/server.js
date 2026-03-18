@@ -243,38 +243,3 @@ export function createServer(port) {
   return { server, router, token };
 }
 
-/**
- * Register graceful shutdown handlers for SIGTERM/SIGINT.
- * Stops accepting new connections, waits for in-flight requests,
- * then exits. Calls optional teardown() before exiting.
- *
- * @param {import('http').Server} server
- * @param {{ teardown?: () => void }} [options]
- */
-export function registerShutdownHandlers(server, { teardown } = {}) {
-  let stopping = false;
-
-  const shutdown = (signal) => {
-    if (stopping) return;
-    stopping = true;
-
-    console.log(`\nReceived ${signal}, shutting down gracefully...`);
-
-    server.close((err) => {
-      if (err) console.error('Error closing server:', err.message);
-      if (teardown) {
-        try { teardown(); } catch {}
-      }
-      process.exit(err ? 1 : 0);
-    });
-
-    // Force-exit after 10 s if connections are still open
-    setTimeout(() => {
-      console.error('Shutdown timeout — forcing exit');
-      process.exit(1);
-    }, 10_000).unref();
-  };
-
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT',  () => shutdown('SIGINT'));
-}

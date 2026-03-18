@@ -1,5 +1,6 @@
 process.env.COCOON_MODE = 'webui';
 
+import { apiLogger } from '../lib/logger.js';
 import { createServer } from '../api/server.js';
 import { register as registerSetup } from '../api/routes/setup.js';
 import { register as registerClient } from '../api/routes/client.js';
@@ -23,7 +24,7 @@ export async function uiCommand(options) {
 
   // Open browser (best-effort, platform-specific)
   const url = `http://127.0.0.1:${port}?token=${token}`;
-  console.log('API auth token:', token);
+  apiLogger.info({ token }, 'Auth token');
   const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
   import('child_process').then(cp => cp.exec(`${cmd} ${url}`)).catch(() => {});
 

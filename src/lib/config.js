@@ -146,4 +146,16 @@ export function validateConfig() {
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Get Toncenter API key from: env var > client.conf > null
+ */
+export function getApiKey() {
+  if (process.env.TONCENTER_API_KEY) return process.env.TONCENTER_API_KEY;
+  try {
+    const conf = readClientConf();
+    if (conf?.toncenter_api_key) return conf.toncenter_api_key;
+  } catch {}
+  return null;
+}
+
 export { DEFAULT_ROOT_CONTRACT };

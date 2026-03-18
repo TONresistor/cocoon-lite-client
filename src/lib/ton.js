@@ -1,6 +1,6 @@
 import { TonClient } from '@ton/ton';
 import { Address, fromNano } from '@ton/core';
-import { readClientConf } from './config.js';
+import { readClientConf, getApiKey } from './config.js';
 
 const DEFAULT_TONCENTER_ENDPOINT = 'https://toncenter.com/api/v2/jsonRPC';
 
@@ -8,25 +8,10 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ── Private helpers ─────────────────────────────────────────
 
-/**
- * Get the Toncenter endpoint from client.conf or fall back to mainnet default.
- */
 function getEndpoint() {
   try {
     const conf = readClientConf();
     if (conf?.toncenter_endpoint) return conf.toncenter_endpoint;
-  } catch {}
-  return DEFAULT_TONCENTER_ENDPOINT;
-}
-
-/**
- * Get API key from: env var > client.conf > null
- */
-function getApiKey() {
-  if (process.env.TONCENTER_API_KEY) return process.env.TONCENTER_API_KEY;
-  try {
-    const conf = readClientConf();
-    if (conf?.toncenter_api_key) return conf.toncenter_api_key;
   } catch {}
   return null;
 }

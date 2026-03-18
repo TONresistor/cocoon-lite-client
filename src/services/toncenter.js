@@ -1,16 +1,7 @@
-import { readClientConf } from '../lib/config.js';
+import { getApiKey } from '../lib/config.js';
 import { toncenterLogger } from '../lib/logger.js';
 
 const BASE_URL = 'https://toncenter.com/api/v3';
-
-function getApiKey() {
-  if (process.env.TONCENTER_API_KEY) return process.env.TONCENTER_API_KEY;
-  try {
-    const conf = readClientConf();
-    if (conf?.toncenter_api_key) return conf.toncenter_api_key;
-  } catch {}
-  return null;
-}
 
 /**
  * Query Toncenter API v3 actions endpoint.
