@@ -26,7 +26,10 @@ export default function FundStep({ data, next, back }: Props) {
     enabled: !!data.ownerAddress,
   });
 
-  const hasFunds = balance && BigInt(balance.nano) > 0n;
+  const MIN_FUND = 20_000_000_000n; // 20 TON
+  const currentBalance = balance ? BigInt(balance.nano) : 0n;
+  const hasFunds = currentBalance >= MIN_FUND;
+  const hasPartial = currentBalance > 0n && !hasFunds;
 
   const copyAddress = () => {
     navigator.clipboard.writeText(data.ownerAddress);
@@ -45,7 +48,7 @@ export default function FundStep({ data, next, back }: Props) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent-dim)] px-4 py-3 space-y-2">
-            <p className="text-sm font-medium text-[var(--text-primary)]">Send at least 21 TON to your owner wallet</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">Send at least 20 TON to your owner wallet</p>
             <ul className="space-y-1 text-xs text-[var(--text-secondary)]">
               <li>15 TON — minimum stake deposit</li>
               <li>3 TON — gas fees (registration + staking transactions)</li>
@@ -84,7 +87,14 @@ export default function FundStep({ data, next, back }: Props) {
           {hasFunds && (
             <Alert variant="success">
               <AlertDescription>
-                Detected {formatTon(balance.nano)} TON. You can proceed.
+                Detected {formatTon(balance!.nano)} TON. You can proceed.
+              </AlertDescription>
+            </Alert>
+          )}
+          {hasPartial && (
+            <Alert variant="warning">
+              <AlertDescription>
+                {formatTon(balance!.nano)} TON detected — need at least 20 TON to continue.
               </AlertDescription>
             </Alert>
           )}
