@@ -35,10 +35,18 @@
   /* Semantic */
   --green: #30D158;
   --green-dim: rgba(48,209,88,0.15);
+  --green-pastel: #86EFAC;
+  --green-pastel-bg: rgba(134,239,172,0.10);
   --red: #FF453A;
   --red-dim: rgba(255,69,58,0.15);
+  --red-pastel: #FCA5A5;
+  --red-pastel-bg: rgba(252,165,165,0.10);
   --amber: #FFD60A;
   --amber-dim: rgba(255,214,10,0.15);
+  --amber-pastel: #FDE68A;
+  --amber-pastel-bg: rgba(253,230,138,0.10);
+  --accent-pastel: #93C5FD;
+  --accent-pastel-bg: rgba(147,197,253,0.10);
 
   /* Spacing */
   --space-xs: 4px;
